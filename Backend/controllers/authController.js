@@ -1,9 +1,11 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 const sendToken = require("../utils/sendToken");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors"); 
 const ErrorHandler = require("../utils/errorHandler");
 const bcrypt = require('bcrypt');
+const crypto = require("crypto");
 const Email = require("../utils/email");
 
 //Register the user

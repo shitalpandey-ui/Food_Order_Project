@@ -5,14 +5,14 @@ const {
     getAllMenus,
     createMenu,
     deleteMenu,
-    addItemsToMenu } = require("../controllers/menuController");
+    AddItemsToMenu } = require("../controllers/menuController");
 
-const { protect } = require("../controllers/authCOntroller");
-const { authorizeRoles }= require("../middlewares/authorizeROles");
+const { protect } = require("../controllers/authController");
+const { authorizeRoles }= require("../middleware/authorizeRoles");
 
 router.route("/").get(getAllMenus).post(protect,authorizeRoles("admin"),createMenu);
 router.route("/:menuId").delete(protect,authorizeRoles("admin"),deleteMenu);
-router.route("/:menuId/items").post(protect,authorizeRoles("admin"),addItemsToMenu);
+router.route("/:menuId/items").post(protect,authorizeRoles("admin"),AddItemsToMenu);
 
 module.exports = router;
 

@@ -2,7 +2,7 @@ const Menu = require("../models/menu");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorHandler");
 
-exports.getAllMenus = catchAscyncErrors(async(req, res, next) =>{
+exports.getAllMenus = catchAsyncErrors(async(req, res, next) =>{
      // filter logic
      const filter = req.params.storeId ? { restaurant:req.params.storeId}:{}
 
@@ -38,7 +38,7 @@ exports.deleteMenu = catchAsyncErrors(async(req , res, next) =>{
 exports.AddItemsToMenu = catchAsyncErrors(async(req,res,next)=>{
      const {category,items} = req.body;
      const menuId = req.params.menuId;
-     if(!menu){
+     if(!menuId){
           return next(new ErrorHandler ("Please provide menuId",400))
      }
      const menu = await Menu.findById(menuId);
@@ -55,7 +55,7 @@ exports.AddItemsToMenu = catchAsyncErrors(async(req,res,next)=>{
 
      }
      //add items to category
-     cat.items.push(foodItemId);
+     cat.items.push(...items);
      await menu.save();
      await menu.populate("menu.Items")
      res.status(200).json({status: "success", data:menu})
