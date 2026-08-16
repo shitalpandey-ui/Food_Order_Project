@@ -11,10 +11,11 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const authRoutes = require("./routes/auth");
 const cartROutes = require("./routes/cart");
-const foodItemRoutes = require("./routes/fooditem");
+const foodItemRoutes = require("./routes/foodItem");
 const menuRoutes = require("./routes/menu");
 const orderRoutes = require("./routes/order");
 const restaurantRoutes = require("./routes/restaurant");
+const errorMiddleware = require("./middleware/errors");
 // user middleware
 
 app.use(cors());
@@ -27,5 +28,7 @@ app.use("/api/fooditems", foodItemRoutes);
 app.use("/api/menus", menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/restaurants", restaurantRoutes);
+
+app.use(errorMiddleware);
 
 module.exports = app;

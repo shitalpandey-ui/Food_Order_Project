@@ -23,7 +23,7 @@ const orderSchema = new mongoose.Schema({
      }, // these schema are already created so we can just usae it rather than writting it manually again
      restaurant:{
         type:mongoose.Schema.Types.ObjectId,
-        red: 'Restaurant',
+        ref: 'Restaurant',
         required: true,
      },
      user:{
@@ -50,7 +50,7 @@ const orderSchema = new mongoose.Schema({
             required:true
         },
         foodItem:{
-            type: mongoose.Schema.Types.objectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref:"FoodItem",
             required:true,
         },
