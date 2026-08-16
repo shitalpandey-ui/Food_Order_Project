@@ -3,5 +3,5 @@ const restaurantController =require("../controllers/restaurantController");
 const router = express.Router({ mergeParams: true}); 
 
 const { product } = require("../controllers/restaurantController");
-const{ authorizeRoles } = require("../middlewares/authorizeRoles");
+const{ authorizeRoles } = require("../middleware/authorizeRoles");
 

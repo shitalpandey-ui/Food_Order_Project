@@ -2,7 +2,7 @@ const Menu = require("../models/menu");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/errorHandler");
 
-exports.getAllMenus = catchAscyncErrors(async(req, res, next) =>{
+exports.getAllMenus = catchAsyncErrors(async(req, res, next) =>{
      // filter logic
      const filter = req.params.storeId ? { restaurant:req.params.storeId}:{}
 

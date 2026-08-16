@@ -8,7 +8,7 @@ const {
     addItemsToMenu } = require("../controllers/menuController");
 
 const { protect } = require("../controllers/authCOntroller");
-const { authorizeRoles }= require("../middlewares/authorizeROles");
+const { authorizeRoles }= require("../middleware/authorizeROles");
 
 router.route("/").get(getAllMenus).post(protect,authorizeRoles("admin"),createMenu);
 router.route("/:menuId").delete(protect,authorizeRoles("admin"),deleteMenu);
