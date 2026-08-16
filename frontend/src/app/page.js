@@ -63,23 +63,26 @@ export default function Home() {
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
             Instant Gratification
           </h1>
-          <p className="text-lg md:text-xl mb-8">
+          <p className="text-lg md:text-xl mb-2">
             Order food from your favourite restaurants.
           </p>
 
-          <div className="mx-auto flex max-w-2xl flex-col gap-7 rounded-full bg-white p-2 shadow-md sm:flex-row sm:gap-0">
+          <div className="mx-4 flex max-w-sm flex-col gap-7 rounded-full bg-white p-2 shadow-md sm:flex-row sm:gap-0">
             <input
               type="text"
               placeholder="Enter your delivery address or restaurant name...."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white px-6 py-3 rounded-full text-gray-900 placeholder:text-gray-400 outline-none text 3xl text-center shadow-md"
+              className="flex-6 bg-white px-6 py-3 rounded-full text-gray-900 placeholder:text-gray-400 outline-none text 3xl text-center shadow-md"
             />
           
 <div className="flex flex-col items-center gap-3 min-w-[100px] cursor-pointer transition-transform duration-200 hover:-translate-y-1">
   
-  <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-border overflow-hidden">
-  
+  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-border overflow-hidden">
+    
+  </div>
+
+  <span className="font-semibold text-sm">Pizza</span>
 </div>
             <button
               className="rounded-full bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600"
