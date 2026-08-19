@@ -1,3 +1,5 @@
+// cart items, add/remove logic
+
 'use client';
 import { createContext, useState, useEffect, useContext } from 'react';
 
