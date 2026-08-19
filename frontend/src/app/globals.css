@@ -1,6 +1,18 @@
 /* globals.css */
 @import "tailwindcss";
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #1c1815;
+}
 :root {
+  --color-turmeric: #E8A93B;
+  --color-cream: #F5EFE6;
+  --color-charcoal: #1C1815;
   --primary-color: #f26522;
   --primary-hover: #d1561d;
   --secondary-color: #333333;
@@ -64,3 +76,4 @@ button {
 .btn-primary:hover {
   background-color: var(--primary-hover);
 }
+

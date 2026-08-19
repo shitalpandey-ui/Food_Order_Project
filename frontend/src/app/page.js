@@ -1,3 +1,5 @@
+//logged in user dashboard
+
 'use client'; // marks this as a client component
 
 import { useState, useEffect } from 'react'; // used for state and side effects
@@ -10,9 +12,9 @@ import RestaurantCard from '@/components/RestaurantCard';
 const categories = [
   { name: 'Pizza', icon: '/images/pizza.png' },
   { name: 'Burger', icon: '/images/burger.png' },
-  { name: 'Newari', icon: '/images/newari.png' },
+  { name: 'Newari', icon:  '/images/newari.png'},
   { name: 'Indian', icon: '/images/indian.png' },
-  { name: 'Bakery', icon: '/images/bakery.png' },
+  { name: 'Bakery', icon: '/images/bakery.jpg' },
   { name: 'Healthy', icon: '/images/healthy.png' },
 ];
 
@@ -60,20 +62,20 @@ export default function Home() {
         }}
       >
         <div className="px-4">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-12">
             Instant Gratification
           </h1>
-          <p className="text-lg md:text-xl mb-2">
+          <p className="text-lg md:text-xl mb-14">
             Order food from your favourite restaurants.
           </p>
 
-          <div className="mx-4 flex max-w-sm flex-col gap-7 rounded-full bg-white p-2 shadow-md sm:flex-row sm:gap-0">
+          <div  className="mx-auto flex max-w-xl h-15 flex-col gap-2 rounded-full bg-white p-2 shadow-md sm:flex-row sm:gap-4">
             <input
               type="text"
               placeholder="Enter your delivery address or restaurant name...."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-6 bg-white px-6 py-3 rounded-full text-gray-900 placeholder:text-gray-400 outline-none text 3xl text-center shadow-md"
+              className="flex-1 bg-white px-6 py-3 rounded-full text-gray-900 placeholder:text-gray-400 outline-none text 4xl text-center shadow-md"
             />
           
 <div className="flex flex-col items-center gap-3 min-w-[100px] cursor-pointer transition-transform duration-200 hover:-translate-y-1">
@@ -96,25 +98,26 @@ export default function Home() {
 
       <div className="container mx-auto px-4">
         {/* Categories Section */}
-        <section className="mb-16">
-          <h2 className="mb-100 text-2xl md:text-3xl font-bold text-gray-800">
+        <section className="mb-60">
+          <h2 className="mb-100 text-2xl md:text-4xl font-bold text-gray-800">
             What are you craving?
           </h2>
-          <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-hide">
+          <div className=" flex gap-8 overflow-x-auto pb-4 scrollbar-hide">
             {categories.map((cat) => (
               <div
                 key={cat.name}
                 className="flex min-w-[100px] cursor-pointer flex-col items-center gap-3 transition-transform hover:-translate-y-1"
               >
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm">
+                <div className="flex h-30 w-30 gap-4 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm">
                   <Image
                     src={cat.icon}
                     alt={cat.name}
-                    width={60}
-                    height={60}
+                    width={50}
+                    height={50}
+                    className= "h-25 w-25 object-cover overflow-hidden"
                   />
                 </div>
-                <span className="text-sm font-semibold text-gray-800">
+                <span className="text-md font-semibold text-gray-800">
                   {cat.name}
                 </span>
               </div>
@@ -123,9 +126,9 @@ export default function Home() {
         </section>
 
         {/* Featured Restaurants */}
-        <section id="featured-restaurants" className="mb-16">
+        <section id="featured-restaurants" className="mb-50">
           <div className="mb-8 flex items-center justify-between">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
+            <h2 className="text-4xl md:text-3xl font-bold text-gray-800">
               Featured Restaurants
             </h2>
             <Link

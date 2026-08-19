@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.3.3",
     "axios": "^1.19.0",
     "next": "16.3.0",
     "react": "19.2.8",
@@ -19,6 +20,6 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4.3.3"
   }
 }
