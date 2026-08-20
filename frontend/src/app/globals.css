@@ -36,7 +36,7 @@ body {
   margin: 0;
   padding: 0;
 }
-
+/* 
 body {
   font-family: var(--font-sans);
   background-color: var(--background-color);
@@ -77,5 +77,5 @@ button {
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-}
+} */
 
