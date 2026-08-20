@@ -1,14 +1,14 @@
 export default function BrandPanel() {
   return (
     <div
-      className="relative hidden lg:flex lg:w-1/2 flex-col justify-between px-10 py-12 text-cream"
+      className="relative hidden lg:flex lg:w-1/2 flex-col justify-between gap-10px px-10 py-12 text-cream"
       style={{
         background:
           "radial-gradient(circle at 40% 15%, rgba(232,169,59,0.16), transparent 45%), radial-gradient(circle at 80% 90%, rgba(193,68,46,0.18), transparent 50%), #1C1815",
       }}
     >
       <div className="flex flex-col gap-7">
-        <div className="flex items-center gap-40 font-display font-bold text-6xl tracking-tight text-white">
+        <div className="flex items-center gap-40px font-display font-bold text-6xl tracking-tight text-white">
           <span className="w-2.5 h-2.5 py-40 rounded-full bg-turmeric" />
           QuickBites
         </div>
@@ -27,7 +27,7 @@ export default function BrandPanel() {
           track live, and never lose a favourite.
         </p>
 
-        <ul className="flex flex-col gap-4 pt-2">
+        <ul className="flex flex-col gap-6 pt-4">
          <Fact chip="01" color="bg-turmeric">
            Local kitchens, plated within the hour
          </Fact>
