@@ -9,7 +9,7 @@ body {
 body {
   background-color: #1c1815;
 }
-@import "tailwindcss";
+
 
 :root {
   --color-turmeric: #E8A93B;
