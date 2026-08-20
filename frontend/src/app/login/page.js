@@ -26,10 +26,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#14100E] p-4 lg:p-8">
+    <div className="min-h-screen w-400px flex items-center justify-center bg-[#14100E] px-6 py-12">
       
       {/* Card Wrapper containing both sides side-by-side */}
-      <div className="w-full max-w-8xl flex flex-col lg:flex-row rounded-3xl overflow-hidden shadow-2xl bg-[#1C1815] border border-[#2A2420]">
+      <div className="w-full max-w-7xl min-h-[600px] flex flex-col lg:flex-row rounded-3xl overflow-hidden shadow-2xl bg-[#1C1815] border border-[#2A2420]">
         
         {/* Left Side: Brand Panel */}
         <BrandPanel />
@@ -47,7 +47,7 @@ export default function LoginPage() {
                 Log in
               </Link>
               <Link
-                href="/register"
+                href="/signup"
                 className="w-1/2 py-2.5 text-center text-sm font-medium text-[#7A7062] hover:text-charcoal transition-colors"
               >
                 Sign up
