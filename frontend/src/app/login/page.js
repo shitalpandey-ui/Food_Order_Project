@@ -39,7 +39,7 @@ export default function LoginPage() {
             <div className="flex rounded-3xl h-13 bg-[#E8E2D5] p-4 mb-10">
               <Link
                 href="/login"
-                className="w-1/2  padding-4 text-center text-xl font-semibold rounded-lg bg-white shadow-xs text-charcoal"
+                className="w-1/2  padding-6 text-center text-xl font-semibold rounded-lg bg-white shadow-xs text-charcoal"
               >
                 Log in
               </Link>

@@ -16,17 +16,19 @@ export default function BrandPanel() {
 
         <QuickBitesIllustration />
 
-        <h1 className=" font-display font-semibold text-3xl lg:text-5xl leading-tight tracking-tight text-white" >
-          Every bites,
-          <br />
-          <span className="text-turmeric not-italic">packed fresh</span>, on the
-          way.
-        </h1>
-
-        <p className="text-[1.5rem] leading-relaxed text-[#C9C0B3]">
-          One account gets you into every stall,<br></br> kitchen, and cart on QuickBites — order in,<br></br>
-          track live, and never lose a favourite.
-        </p>
+          <h1
+              className="font-semibold text-[2.15rem] leading-[1.18] tracking-[-0.01em] mb-3.5"
+              style={FONT_DISPLAY}
+            >
+              Every,
+              <br />
+              <em className="not-italic text-[#E8A93B]">packed fresh</em>, on
+              the way.
+            </h1>
+         <p className="text-[0.98rem] leading-[1.6] text-[#C9C0B3] max-w-[34ch] mb-[30px]">
+              One account gets you into every stall, kitchen, and cart on
+              QuickBites — order in, track live, and never lose a favourite.
+            </p>
 
         <ul className="flex flex-col gap-6 pt-4">
          <Fact chip="01" color="bg-turmeric">
@@ -41,7 +43,7 @@ export default function BrandPanel() {
         </ul>
        </div>
 
-     <div className="font-mono text-xl tracking-widest text-#8A8175 pt-10">
+     <div className="font-mono text-xl tracking-widest text-black pt-10">
       &nbsp; &nbsp; &nbsp; ORDER LOCAL, EAT FIRST
       </div>
     </div>
