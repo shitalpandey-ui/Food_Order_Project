@@ -55,17 +55,17 @@ export default function Home() {
     <>
       {/* Hero */}
       <section
-        className="relative flex h-[300px] items-center justify-center bg-cover bg-center text-center text-white mb-40"
+        className="relative flex h-[400px] items-center justify-center bg-cover bg-center text-center text-white mb-40"
         style={{
           backgroundImage:
             "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/images/hero-bg.jpg')",
         }}
       >
         <div className="px-4">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-12">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-5">
             Instant Gratification
           </h1>
-          <p className="text-lg md:text-xl mb-14">
+          <p className="text-lg md:text-xl mb-5">
             Order food from your favourite restaurants.
           </p>
 

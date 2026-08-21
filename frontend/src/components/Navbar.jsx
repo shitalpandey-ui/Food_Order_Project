@@ -10,7 +10,7 @@ export default function Navbar() {
         QuickBites
         </Link>
 
-        <nav className="flex items-center gap-6 text-3xl font-medium">
+        <nav className="flex items-center gap-6 text-2xl font-medium">
           <Link href="/restaurants">Restaurants</Link>
           <Link href="/cart">Cart</Link>
           <Link href="/orders">Orders</Link>

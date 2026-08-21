@@ -1,3 +1,4 @@
+
 export default function BrandPanel() {
   return (
     <div
@@ -40,7 +41,7 @@ export default function BrandPanel() {
         </ul>
        </div>
 
-     <div className="font-mono text-xl tracking-widest text-[#8A8175] pt-10">
+     <div className="font-mono text-xl tracking-widest text-#8A8175 pt-10">
       &nbsp; &nbsp; &nbsp; ORDER LOCAL, EAT FIRST
       </div>
     </div>
@@ -49,7 +50,7 @@ export default function BrandPanel() {
 
 function Fact({ chip, color, children }) {
   return (
-    <li className="flex items-center gap-6 text-2xl text-[#D8D1C4]">
+    <li className="flex items-center gap-6 text-2xl text-#D8D1C4">
       <span
         className={`w-[30px] h-[30px] rounded-[6px] flex-none flex items-center justify-center font-mono text-[1.5rem] font-1xl text-charcoal ${color}`}
       >
