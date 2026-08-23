@@ -39,13 +39,13 @@ export default function LoginPage() {
             <div className="flex rounded-4xl h-20 bg-[#E8E2D5] p-5 mb-10">
               <Link
                 href="/login"
-                className="w-1/2   padding-7 text-center text-1xl font-mediumbold rounded-lg bg-white shadow-m text-charcoal teansition-colors"
+                className="w-1/2   padding-7 text-center text-2xl font-mediumbold rounded-lg bg-white shadow-m hover:bg- #f26522 text-charcoal transition-colors"
               >
                 Log in
               </Link>
               <Link
                 href="/signup"
-                className="w-1/2 text-center text-1xl font-mediumbold text-[#7A7062] hover:text-charcoal transition-colors"
+                className="w-1/2 text-center text-2xl font-mediumbold text-[#7A7062] hover:bg- #f26522 hover:text-charcoal transition-colors"
               >
                 Sign up
               </Link>
@@ -106,9 +106,9 @@ export default function LoginPage() {
             </form>
             <div className="mt-6">
               <p className="text-center text-m text-[#7A7062] ">
-                New to QuickBItes?{" "}
+                New to QuickBites?{" "}
                 <Link
-                  href="/register"
+                  href="/signup"
                   className="font-m text-[#C1442E] hover:underline"
                 >
                   Create an account

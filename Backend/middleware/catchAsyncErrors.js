@@ -6,7 +6,7 @@
 // we create this reusable function.
 
 // It takes a controller function as an argument
-module.exports = (func) => (req, res, next) =>
+module.exports = (func) => (req, res, next)=>
 
   // Promise.resolve ensures that the function runs as a promise
   // so that any error inside async code can be caught
