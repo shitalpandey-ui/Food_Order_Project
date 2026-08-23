@@ -55,42 +55,42 @@ export default function Home() {
     <>
       {/* Hero */}
       <section
-        className="relative flex h-[300px] items-center justify-center bg-cover bg-center text-center text-white mb-40"
+        className="relative flex h-[500px] items-center justify-center bg-cover bg-center text-center text-white mb-40"
         style={{
           backgroundImage:
             "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/images/hero-bg.jpg')",
         }}
       >
         <div className="px-4">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-12">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-5">
             Instant Gratification
           </h1>
-          <p className="text-lg md:text-xl mb-14">
+          <p className="text-lg md:text-xl mb-4">
             Order food from your favourite restaurants.
           </p>
 
-          <div  className="mx-auto flex max-w-xl h-15 flex-col gap-2 rounded-full bg-white p-2 shadow-md sm:flex-row sm:gap-4">
+          <div  className="mx-auto flex max-w-full h-20 flex-col gap-3 rounded-full bg-white p-3 shadow-md sm:flex-row sm:gap-5">
             <input
               type="text"
               placeholder="Enter your delivery address or restaurant name...."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-white px-6 py-3 rounded-full text-gray-900 placeholder:text-gray-400 outline-none text 4xl text-center shadow-md"
+              className="flex-4 bg-white px-7 py-4 rounded-full text-gray-900 placeholder:text-gray-400 outline-none text 5xl text-center shadow-md"
             />
           
 <div className="flex flex-col items-center gap-3 min-w-[100px] cursor-pointer transition-transform duration-200 hover:-translate-y-1">
   
-  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-border overflow-hidden">
+  <div className="w-10 h-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-border overflow-hidden">
     
   </div>
 
-  <span className="font-semibold text-sm">Pizza</span>
+  <span className="font-semibold text-xl">Pizza</span>
 </div>
             <button
               className="rounded-full bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600"
               onClick={handleSearch}
             >
-              Find Food
+              Find 
             </button>
           </div>
         </div>
@@ -98,26 +98,26 @@ export default function Home() {
 
       <div className="container mx-auto px-4">
         {/* Categories Section */}
-        <section className="mb-60">
-          <h2 className="mb-100 text-2xl md:text-4xl font-bold text-gray-800">
+        <section className="mb-10">
+          <h2 className="mb-20 text-3xl md:text-5xl font-bold text-gray-800">
             What are you craving?
           </h2>
           <div className=" flex gap-8 overflow-x-auto pb-4 scrollbar-hide">
             {categories.map((cat) => (
               <div
                 key={cat.name}
-                className="flex min-w-[100px] cursor-pointer flex-col items-center gap-3 transition-transform hover:-translate-y-1"
+                className="flex min-w-[120px] cursor-pointer flex-col items-center gap-3 transition-transform hover:-translate-y-1"
               >
-                <div className="flex h-30 w-30 gap-4 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm">
+                <div className="flex h-35 w-35 gap-3 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm  hover:text-amber-700">
                   <Image
                     src={cat.icon}
                     alt={cat.name}
-                    width={50}
-                    height={50}
+                    width={35}
+                    height={35}
                     className= "h-25 w-25 object-cover overflow-hidden"
                   />
                 </div>
-                <span className="text-md font-semibold text-gray-800">
+                <span className="text-xl font-semibold text-gray-800">
                   {cat.name}
                 </span>
               </div>
@@ -132,8 +132,8 @@ export default function Home() {
               Featured Restaurants
             </h2>
             <Link
-              href="/restaurants"
-              className="font-semibold text-orange-500 hover:text-orange-600"
+              href="/restaurant"
+              className="font-semibold text-2xl text-black hover:text-orange-700"
             >
               View All
             </Link>
@@ -144,7 +144,7 @@ export default function Home() {
           ) : error ? (
             <p className="text-red-500">{error}</p>
           ) : filteredRestaurants.length === 0 ? (
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-2xl">
               No restaurants found matching &quot;{searchQuery}&quot;.
             </p>
           ) : (

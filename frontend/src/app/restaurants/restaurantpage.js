@@ -1,4 +1,0 @@
-// for restaurant lists
-
-
-
