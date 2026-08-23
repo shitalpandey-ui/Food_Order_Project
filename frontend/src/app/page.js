@@ -108,7 +108,7 @@ export default function Home() {
                 key={cat.name}
                 className="flex min-w-[120px] cursor-pointer flex-col items-center gap-3 transition-transform hover:-translate-y-1"
               >
-                <div className="flex h-35 w-35 gap-3 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm">
+                <div className="flex h-35 w-35 gap-3 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm  hover:text-amber-700">
                   <Image
                     src={cat.icon}
                     alt={cat.name}
@@ -132,8 +132,8 @@ export default function Home() {
               Featured Restaurants
             </h2>
             <Link
-              href="/restaurants"
-              className="font-semibold text-orange-500 hover:text-orange-600"
+              href="/restaurant"
+              className="font-semibold text-2xl text-black hover:text-orange-700"
             >
               View All
             </Link>
@@ -144,7 +144,7 @@ export default function Home() {
           ) : error ? (
             <p className="text-red-500">{error}</p>
           ) : filteredRestaurants.length === 0 ? (
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-2xl">
               No restaurants found matching &quot;{searchQuery}&quot;.
             </p>
           ) : (
