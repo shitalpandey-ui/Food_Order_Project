@@ -19,11 +19,18 @@ const errorMiddleware = require("./middleware/errors");
 // user middleware
 
 app.use(cors({
-  origin: 'http://localhost:3000', // your frontend's URL
+  origin: 'http://localhost:3001', // your frontend's URL
   credentials: true // only needed if you're sending cookies/auth headers
 }));
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Request timeout middleware - prevent hanging requests
+app.use((req, res, next) => {
+  req.setTimeout(30000); // 30 seconds
+  res.setTimeout(30000);
+  next();
+});
 
 app.use("/api/user", authRoutes);
 app.use("/api/cart", cartROutes);

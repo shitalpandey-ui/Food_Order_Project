@@ -37,9 +37,9 @@ export const AuthProvider = ({children}) => {
 
  const login = async (credentials) => {
     try {
-     const data = await authService.login(credentials);
-      localStorage.setItem('token',data.token);
-      setUser(data.user);
+      const data = await authService.login(credentials);
+      localStorage.setItem('token', data.token);
+      setUser(data.data?.user || data.user);
       router.push('/');
     }
     catch (error){
@@ -49,8 +49,8 @@ export const AuthProvider = ({children}) => {
  const signup = async (userData) =>{
     try{
         const data = await authService.signup(userData);
-        localStorage.setItem('token',data.token);
-        setUser(data.user);
+        localStorage.setItem('token', data.token);
+        setUser(data.data?.user || data.user);
         router.push('/');
 
     }catch(error){
@@ -58,7 +58,7 @@ export const AuthProvider = ({children}) => {
     }
  }
  const logout = async () =>{
-    localStorage.removeItem();
+    localStorage.removeItem('token');
     setUser(null);
     router.push('/login');
  }

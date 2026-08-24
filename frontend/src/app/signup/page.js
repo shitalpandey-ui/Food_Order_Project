@@ -10,6 +10,8 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
@@ -20,7 +22,7 @@ export default function SignupPage() {
     setError("");
     setLoading(true);
     try {
-      await signup({ name, email, password });
+      await signup({ name, email, password, passwordConfirm, phoneNumber });
     } catch (err) {
       setError(err);
     } finally {
@@ -135,6 +137,36 @@ export default function SignupPage() {
                     placeholder="Enter your number.."
                   />
                   </div>
+                <div className="space-y-1">
+                  <label className="block text-[1rem] font-mono font-bold uppercase tracking-wider text-[#7A7062]">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    className="block w-full rounded-xl bg-white border border-[#E0D8CC] px-4 py-3 text-m text-charcoal shadow-sm focus:border-turmeric focus:outline-none focus:ring-1 focus:ring-turmeric"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[1rem] font-mono font-bold uppercase tracking-wider text-[#7A7062]">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    pattern="[0-9]{10}"
+                    maxLength={10}
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="block w-full rounded-xl bg-white border border-[#E0D8CC] px-4 py-3 text-m text-charcoal shadow-sm focus:border-turmeric focus:outline-none focus:ring-1 focus:ring-turmeric"
+                    placeholder="1234567890"
+                  />
+                </div>
+
                 <button
                   type="submit"
                   disabled={loading}
