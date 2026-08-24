@@ -37,6 +37,21 @@ exports.getRestaurant = catchAsyncErrors(async(req, res, next) =>{
      });
 });
 
+exports.updateRestaurant = catchAsyncErrors(async(req, res, next) => {
+    const restaurant = await Restaurant.findByIdAndUpdate(req.params.storeId, req.body, {
+        new: true,
+        runValidators: true,
+    });
+
+    if(!restaurant)
+        return next(new ErrorHandler("No Restaurant found with that ID", 404));
+
+    res.status(200).json({
+        status:"success",
+        data: restaurant,
+    });
+});
+
 exports.deleteRestaurant = catchAsyncErrors(async(req, res, next) =>{
      const restaurant = await Restaurant.findByIdAndDelete(req.params.storeId);
 

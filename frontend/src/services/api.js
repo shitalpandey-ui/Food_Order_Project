@@ -25,6 +25,30 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Fired when a request comes back 401 so AuthContext can clear stale login state.
+export const AUTH_EVENT = 'auth:unauthorized';
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Backend's dev error middleware puts the message under `errMessage`, not `message`.
+    if (error.response?.data && !error.response.data.message && error.response.data.errMessage) {
+      error.response.data.message = error.response.data.errMessage;
+    }
+
+    if (typeof window !== 'undefined' && error.response?.status === 401) {
+      const url = error.config?.url || '';
+      const isAuthEndpoint = url.includes('/user/login') || url.includes('/user/signup');
+      if (!isAuthEndpoint) {
+        localStorage.removeItem('token');
+        window.dispatchEvent(new Event(AUTH_EVENT));
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export const getRestaurants = async () => {
   const res = await api.get('/restaurants');
   return res.data.restaurants;   // unwrap the array here

@@ -20,6 +20,9 @@ export default function Navbar() {
 
           {loading ? null : user ? (
             <div className="flex items-center gap-4">
+              {user.role === "admin" && (
+                <Link href="/admin" className="hover:text-amber-700">Admin</Link>
+              )}
               <span className="text-amber-700">{user.name}</span>
               <button
                 onClick={logout}

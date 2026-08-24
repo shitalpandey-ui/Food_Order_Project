@@ -3,6 +3,7 @@ const {
   getAllRestaurants,
   createRestaurant,
   getRestaurant,
+  updateRestaurant,
   deleteRestaurant,
 } = require("../controllers/restaurantController");
 const { protect } = require("../controllers/authController");
@@ -18,6 +19,7 @@ router
 router
   .route("/:storeId")
   .get(getRestaurant)
+  .patch(protect, authorizeRoles("admin"), updateRestaurant)
   .delete(protect, authorizeRoles("admin"), deleteRestaurant);
 
 module.exports = router;
