@@ -12,16 +12,16 @@ const Email = require("../utils/email");
 exports.signup = catchAsyncErrors(async(req,res) => {
     const { name, email, password, passwordConfirm, phoneNumber } = req.body ;
 
-//     let avatar = {};
+    let avatar = {};
 
-// //if avatar not provided or default avatar
-//     if(!req,body,avatar || req.bodt.avatar === "/images/images.png"){
-//         avatar = {
-//             public_id : "default",
-//             url: "/images/immages.png",
+//if avatar not provided or default avatar
+    if(!req,body,avatar || req.bodt.avatar === "/images/images.png"){
+        avatar = {
+            public_id : "default",
+            url: "/images/images.png",
 
-//         };
-//     }
+        };
+    }
 
 // image uploading pending
 

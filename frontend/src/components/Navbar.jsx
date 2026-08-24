@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <header className="sticky top-2 z-40 bg-white border-b">
+    <header className="sticky top-2 z-30 bg-white border-b">
       <div className="max-w-8xl mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="text-6xl font-bold text-amber-700">
         QuickBites

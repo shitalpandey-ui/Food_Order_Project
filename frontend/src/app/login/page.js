@@ -34,7 +34,7 @@ export default function LoginPage() {
 
         {/* Right Side: Login Form (Cream background matching the reference) */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-[#F5EFE6] text-[#1C1815]">
-          <div className="w-full max-w-md flex flex-col *:gap-6">
+          <div className="w-full h-40 max-w-md flex flex-col *:gap-6">
             {/* Toggle Tabs (Log in / Sign up) */}
             <div className="flex rounded-4xl h-20 bg-[#E8E2D5] p-5 mb-10">
               <Link
