@@ -21,7 +21,7 @@ exports.signup = async (req, res, next) => {
     }
 
     if (password.length < 6) {
-      return next(new ErrorHandler("Password must be at least 6 characters", 400));
+
     }
 
     const existingUser = await User.findOne({ email });
@@ -80,7 +80,7 @@ exports.protect = async (req, res, next) => {
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
-    } else if (req.cookies.jwt) {
+    } else if (req.cookies && req.cookies.jwt) {
       token = req.cookies.jwt;
     }
 
