@@ -12,17 +12,6 @@ exports.signup = async (req, res, next) => {
   try {
     const { name, email, password, passwordConfirm, phoneNumber } = req.body;
 
-<<<<<<< HEAD
-    let avatar = {};
-
-//if avatar not provided or default avatar
-    if(!req,body,avatar || req.bodt.avatar === "/images/images.png"){
-        avatar = {
-            public_id : "default",
-            url: "/images/images.png",
-
-        };
-=======
     if (!name || !email || !password || !passwordConfirm || !phoneNumber) {
       return next(new ErrorHandler("Please fill all required fields", 400));
     }
@@ -33,7 +22,6 @@ exports.signup = async (req, res, next) => {
 
     if (password.length < 6) {
       return next(new ErrorHandler("Password must be at least 6 characters", 400));
->>>>>>> 9004cd31187eeeb1cca631172e266079c8f39bc8
     }
 
     const existingUser = await User.findOne({ email });

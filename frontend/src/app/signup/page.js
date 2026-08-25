@@ -112,31 +112,7 @@ export default function SignupPage() {
                     placeholder="••••••••"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="block text-[1rem] font-mono font-bold uppercase tracking-wider text-[#7A7062]">
-                     Confirm Password
-                  </label>
-                 <input
-                    type="passwordconfirm"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full rounded-xl bg-white border border-[#E0D8CC] px-4 py-3 text-m text-charcoal shadow-sm focus:border-turmeric focus:outline-none focus:ring-1 focus:ring-turmeric"
-                    placeholder="••••••••"
-                  />
-                </div>
-
-                  <div className="space-y-1">
-                     <label className="block text-[1rem] font-mono font-bold uppercase tracking-wider text-[#7A7062]">
-                    Phone Number
-                  </label>
-                 <input
-                    type="phoneNumber"
-                    required
-                    className="block w-full rounded-xl bg-white border border-[#E0D8CC] px-4 py-3 text-m text-charcoal shadow-sm focus:border-turmeric focus:outline-none focus:ring-1 focus:ring-turmeric"
-                    placeholder="Enter your number.."
-                  />
-                  </div>
+                
                 <div className="space-y-1">
                   <label className="block text-[1rem] font-mono font-bold uppercase tracking-wider text-[#7A7062]">
                     Confirm Password
@@ -163,7 +139,7 @@ export default function SignupPage() {
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     className="block w-full rounded-xl bg-white border border-[#E0D8CC] px-4 py-3 text-m text-charcoal shadow-sm focus:border-turmeric focus:outline-none focus:ring-1 focus:ring-turmeric"
-                    placeholder="1234567890"
+                    placeholder="0000000000"
                   />
                 </div>
 
