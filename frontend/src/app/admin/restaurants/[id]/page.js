@@ -8,40 +8,47 @@ const emptyItemForm = { name: "", price: "", description: "", stock: "", imageUr
 
 export default function AdminRestaurantDetailPage() {
   const { id } = useParams();
-
   const [restaurant, setRestaurant] = useState(null);
   const [restaurantForm, setRestaurantForm] = useState({ name: "", address: "", isVeg: false });
   const [foodItems, setFoodItems] = useState([]);
   const [itemForm, setItemForm] = useState(emptyItemForm);
-  const [editingItemId, setEditingItemId] = useState(null);
+  const [editingItemId, setEditingItemId] = useState(null); // start true instead of setting it in the effect
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [restaurantData, itemsData] = await Promise.all([
-        adminService.getRestaurant(id),
-        adminService.getFoodItems(id),
-      ]);
-      setRestaurant(restaurantData);
-      setRestaurantForm({
-        name: restaurantData.name,
-        address: restaurantData.address,
-        isVeg: restaurantData.isVeg,
-      });
-      setFoodItems(itemsData);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to load restaurant");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    if (id) loadData();
-  }, [id]);
+const isFirstLoad = useRef(true);
+
+const loadData = useCallback(async () => {
+  if (!isFirstLoad.current) {
+    setLoading(true);
+  }
+  try {
+    const [restaurantData, itemsData] = await Promise.all([
+      adminService.getRestaurant(id),
+      adminService.getFoodItems(id),
+    ]);
+    setRestaurant(restaurantData);
+    setRestaurantForm({
+      name: restaurantData.name,
+      address: restaurantData.address,
+      isVeg: restaurantData.isVeg,
+    });
+    setFoodItems(itemsData);
+  } catch (err) {
+    setError(err.response?.data?.message || "Failed to load restaurant");
+  } finally {
+    setLoading(false);
+    isFirstLoad.current = false;
+  }
+}, [id]);
+
+useEffect(() => {
+  if (id) {
+    Promise.resolve().then(() => loadData());
+  }
+}, [id, loadData]);
 
   const handleRestaurantUpdate = async (e) => {
     e.preventDefault();

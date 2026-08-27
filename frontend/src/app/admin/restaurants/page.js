@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { adminService } from "@/services/adminService";
 
-const emptyForm = { name: "", address: "", isVeg: false, lat: "", lng: "" };
+const emptyForm = { name: "", address: "", isVeg: false, isNonVeg: false, contact: "", lng: "" };
 
 export default function AdminRestaurantsPage() {
   const [restaurants, setRestaurants] = useState([]);
@@ -25,9 +25,10 @@ export default function AdminRestaurantsPage() {
     }
   };
 
-  useEffect(() => {
-    loadRestaurants();
-  }, []);
+ useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern
+  loadRestaurants();
+}, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -38,6 +39,7 @@ export default function AdminRestaurantsPage() {
         name: form.name,
         address: form.address,
         isVeg: form.isVeg,
+        isNonVeg: form.isNonVeg,
         location: {
           type: "Point",
           coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
@@ -110,7 +112,15 @@ export default function AdminRestaurantsPage() {
             checked={form.isVeg}
             onChange={(e) => setForm({ ...form, isVeg: e.target.checked })}
           />
-          Veg only
+          Veg 
+        </label>
+         <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={form.isNonVeg}
+            onChange={(e) => setForm({ ...form, isNonVeg: e.target.checked })}
+          />
+          Non Veg
         </label>
         <button
           type="submit"
@@ -130,6 +140,7 @@ export default function AdminRestaurantsPage() {
               <th className="py-2">Name</th>
               <th className="py-2">Address</th>
               <th className="py-2">Veg</th>
+              <th className="py-2">NonVeg</th>
               <th className="py-2"></th>
             </tr>
           </thead>
@@ -139,10 +150,11 @@ export default function AdminRestaurantsPage() {
                 <td className="py-2">{r.name}</td>
                 <td className="py-2">{r.address}</td>
                 <td className="py-2">{r.isVeg ? "Yes" : "No"}</td>
+                <td className="py-2">{r.isNonVeg ? "Yes" : "No"}</td>
                 <td className="py-2 flex gap-3">
                   <Link
                     href={`/admin/restaurants/${r._id}`}
-                    className="text-amber-700 hover:underline"
+                    className="text-amber-700 text-xl hover:underline"
                   >
                     Manage
                   </Link>

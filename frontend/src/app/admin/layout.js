@@ -24,10 +24,10 @@ export default function AdminLayout({ children }) {
   // }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-6 py-10">
       <div className="flex items-center gap-6 mb-8 border-b pb-4">
-        <h1 className="text-2xl font-bold text-amber-700">Admin Panel</h1>
-        <nav className="flex gap-4 text-sm font-medium">
+        <h1 className="text-3xl font-bold text-amber-700">Admin Panel</h1>
+        <nav className="flex gap-8 text-xl font-bold font-large">
           <Link href="/admin" className="hover:text-amber-700">
             Dashboard
           </Link>
