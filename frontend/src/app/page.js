@@ -2,6 +2,7 @@
 
 'use client'; // marks this as a client component
 
+
 import { useState, useEffect } from 'react'; // used for state and side effects
 import Image from 'next/image'; // from next.js for optimized images and client side navigation
 import Link from 'next/link';
@@ -10,12 +11,12 @@ import Loader from '@/components/Loader';
 import RestaurantCard from '@/components/RestaurantCard';
 
 const categories = [
-  { name: 'Pizza', icon: '/images/pizza.png' },
-  { name: 'Burger', icon: '/images/burger.png' },
-  { name: 'Newari', icon:  '/images/newari.png'},
-  { name: 'Indian', icon: '/images/indian.png' },
-  { name: 'Bakery', icon: '/images/bakery.jpg' },
-  { name: 'Healthy', icon: '/images/healthy.png' },
+  { name: 'Pizza', icon: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&auto=format&fit=crop' },
+  { name: 'Burger', icon: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=300&auto=format&fit=crop' },
+  { name: 'Newari', icon: 'https://images.unsplash.com/photo-1593252719532-53f183016149?w=600&auto=format&fit=crop' },
+  { name: 'Indian', icon: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=300&auto=format&fit=crop' },
+  { name: 'Bakery', icon: 'https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=600&auto=format&fit=crop' },
+  { name: 'Healthy', icon: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=300&auto=format&fit=crop' },
 ];
 
 export default function Home() {
@@ -109,13 +110,10 @@ export default function Home() {
                 className="flex min-w-[120px] cursor-pointer flex-col items-center gap-3 transition-transform hover:-translate-y-1"
               >
                 <div className="flex h-35 w-35 gap-3 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm  hover:text-amber-700">
-                  <Image
-                    src={cat.icon}
-                    alt={cat.name}
-                    width={35}
-                    height={35}
-                    className= "h-25 w-25 object-cover overflow-hidden"
-                  />
+                  <img
+                  src={cat.icon} 
+                  alt={cat.name} 
+                  className="w-30 h-30 rounded-full object-cover" />
                 </div>
                 <span className="text-xl font-semibold text-gray-800">
                   {cat.name}
