@@ -28,10 +28,8 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
         <AuthProvider>
-        <CartProvider>
-          <Navbar />
-          
-
+        <CartProvider> <Navbar />
+        
           <main className="flex-1">
             {children}
           </main>

@@ -4,8 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const userSchema = new mongoose.Schema(
-{
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please enter your name"],
@@ -64,13 +63,10 @@ const userSchema = new mongoose.Schema(
 
 // HASH PASSWORD
 userSchema.pre("save", async function () {
-
   if (!this.isModified("password")) return;
 
-  this.password = await bcrypt.hash(this.password, 12);
-
+  this.password = await bcrypt.hash(this.password, 10);
   this.passwordConfirm = undefined;
-
 });
 
 // PASSWORD COMPARE
