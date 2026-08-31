@@ -67,11 +67,13 @@ exports.AddItemsToMenu = catchAsyncErrors(async(req,res,next)=>{
      //find the category
      let cat = menu.menu.find((c) => c.category === category);
 
-     //If category not found then create new one
+     //If category not found then create new one - re-read the pushed
+     //subdocument back out of the array, since menu.menu.push() casts the
+     //plain object into a new subdocument instance rather than mutating it
+     //in place, so the original `cat` reference would otherwise be stale.
      if(!cat){
-          cat = {category,items:[]};
-              menu.menu.push(cat);
-
+          menu.menu.push({category,items:[]});
+          cat = menu.menu[menu.menu.length - 1];
      }
      //add items to category
      cat.items.push(...items);
@@ -80,6 +82,52 @@ exports.AddItemsToMenu = catchAsyncErrors(async(req,res,next)=>{
      res.status(200).json({status: "success", data:menu})
 
 })
+
+//Rename a category
+exports.renameCategory = catchAsyncErrors(async(req, res, next) => {
+     const { menuId, categoryId } = req.params;
+     const { category } = req.body;
+
+     if (!category || !category.trim()) {
+          return next(new ErrorHandler("Please provide a category name", 400));
+     }
+
+     const menu = await Menu.findById(menuId);
+     if(!menu){
+          return next(new ErrorHandler("No menu found with that ID", 404));
+     }
+
+     const cat = menu.menu.id(categoryId);
+     if(!cat){
+          return next(new ErrorHandler("No category found with that ID", 404));
+     }
+
+     cat.category = category.trim();
+     await menu.save();
+     await menu.populate("menu.items");
+     res.status(200).json({ status: "success", data: menu });
+});
+
+//Delete a whole category - the food items themselves are left untouched,
+//just uncategorized (no longer referenced by any menu category)
+exports.deleteCategory = catchAsyncErrors(async(req, res, next) => {
+     const { menuId, categoryId } = req.params;
+
+     const menu = await Menu.findById(menuId);
+     if(!menu){
+          return next(new ErrorHandler("No menu found with that ID", 404));
+     }
+
+     const cat = menu.menu.id(categoryId);
+     if(!cat){
+          return next(new ErrorHandler("No category found with that ID", 404));
+     }
+
+     cat.deleteOne();
+     await menu.save();
+     await menu.populate("menu.items");
+     res.status(200).json({ status: "success", data: menu });
+});
 
 //Remove a single item from whichever category holds it
 exports.removeItemFromMenu = catchAsyncErrors(async(req, res, next) => {

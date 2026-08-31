@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { adminService } from "@/services/adminService";
 
-const emptyItemForm = { name: "", price: "", description: "", stock: "", imageUrl: "", category: "" };
+const emptyItemForm = { name: "", price: "", description: "", stock: "", category: "" };
 
 // Builds { foodItemId: categoryName } from a Menu doc so the food item list
 // can show/edit which category each item currently belongs to.
@@ -29,8 +29,13 @@ export default function AdminRestaurantDetailPage() {
   const [foodItems, setFoodItems] = useState([]);
   const [menu, setMenu] = useState(null);
   const [itemForm, setItemForm] = useState(emptyItemForm);
+  const [itemImages, setItemImages] = useState([]);
+  const [itemPreviews, setItemPreviews] = useState([]);
   const [editingItemId, setEditingItemId] = useState(null);
   const [editingItemCategory, setEditingItemCategory] = useState("");
+  const [editingItemImage, setEditingItemImage] = useState("");
+  const [renamingCategoryId, setRenamingCategoryId] = useState(null);
+  const [renamingCategoryName, setRenamingCategoryName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -84,6 +89,13 @@ export default function AdminRestaurantDetailPage() {
     setRestaurantPreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
+  const handleItemImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setItemImages(files);
+    itemPreviews.forEach((url) => URL.revokeObjectURL(url));
+    setItemPreviews(files.map((file) => URL.createObjectURL(file)));
+  };
+
   const handleRestaurantUpdate = async (e) => {
     e.preventDefault();
     setError("");
@@ -113,6 +125,10 @@ export default function AdminRestaurantDetailPage() {
     setItemForm(emptyItemForm);
     setEditingItemId(null);
     setEditingItemCategory("");
+    setEditingItemImage("");
+    itemPreviews.forEach((url) => URL.revokeObjectURL(url));
+    setItemImages([]);
+    setItemPreviews([]);
   };
 
   const handleItemSubmit = async (e) => {
@@ -125,13 +141,12 @@ export default function AdminRestaurantDetailPage() {
         price: Number(itemForm.price),
         description: itemForm.description,
         stock: Number(itemForm.stock),
-        imageUrl: itemForm.imageUrl || undefined,
         restaurant: id,
       };
       const category = itemForm.category.trim() || "Other";
 
       if (editingItemId) {
-        const updated = await adminService.updateFoodItem(editingItemId, payload);
+        const updated = await adminService.updateFoodItem(editingItemId, payload, itemImages);
         setFoodItems((prev) => prev.map((f) => (f._id === editingItemId ? updated : f)));
 
         if (category !== editingItemCategory) {
@@ -143,7 +158,7 @@ export default function AdminRestaurantDetailPage() {
           setMenu(updatedMenu);
         }
       } else {
-        const created = await adminService.createFoodItem(payload);
+        const created = await adminService.createFoodItem(payload, itemImages);
         setFoodItems((prev) => [...prev, created]);
 
         const activeMenu = await ensureMenu();
@@ -160,14 +175,17 @@ export default function AdminRestaurantDetailPage() {
 
   const handleEditItem = (item) => {
     const category = categoryByItemId[item._id] || "";
+    itemPreviews.forEach((url) => URL.revokeObjectURL(url));
+    setItemImages([]);
+    setItemPreviews([]);
     setEditingItemId(item._id);
     setEditingItemCategory(category);
+    setEditingItemImage(item.images?.[0]?.url || "");
     setItemForm({
       name: item.name,
       price: item.price,
       description: item.description,
       stock: item.stock,
-      imageUrl: item.images?.[0]?.url || "",
       category,
     });
   };
@@ -191,6 +209,40 @@ export default function AdminRestaurantDetailPage() {
       );
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete food item");
+    }
+  };
+
+  const handleRenameCategoryStart = (cat) => {
+    setRenamingCategoryId(cat._id);
+    setRenamingCategoryName(cat.category || "");
+  };
+
+  const handleRenameCategoryCancel = () => {
+    setRenamingCategoryId(null);
+    setRenamingCategoryName("");
+  };
+
+  const handleRenameCategorySubmit = async (e) => {
+    e.preventDefault();
+    const name = renamingCategoryName.trim();
+    if (!name || !menu) return;
+    try {
+      const updated = await adminService.renameCategory(menu._id, renamingCategoryId, name);
+      setMenu(updated);
+      handleRenameCategoryCancel();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to rename category");
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    if (!menu) return;
+    if (!confirm("Delete this category? Its food items will stay, just uncategorized.")) return;
+    try {
+      const updated = await adminService.deleteCategory(menu._id, categoryId);
+      setMenu(updated);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete category");
     }
   };
 
@@ -278,6 +330,67 @@ export default function AdminRestaurantDetailPage() {
         </button>
       </form>
 
+      <h2 className="mb-4 text-xl font-bold text-slate-900">Menu Categories</h2>
+
+      {menu?.menu?.length > 0 ? (
+        <div className="mb-8 flex flex-col gap-2">
+          {menu.menu.map((cat) => (
+            <div
+              key={cat._id}
+              className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+            >
+              {renamingCategoryId === cat._id ? (
+                <form onSubmit={handleRenameCategorySubmit} className="flex flex-1 items-center gap-2">
+                  <input
+                    type="text"
+                    autoFocus
+                    value={renamingCategoryName}
+                    onChange={(e) => setRenamingCategoryName(e.target.value)}
+                    className="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-amber-500 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="text-sm font-medium text-amber-700 hover:underline"
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRenameCategoryCancel}
+                    className="text-sm font-medium text-slate-500 hover:underline"
+                  >
+                    Cancel
+                  </button>
+                </form>
+              ) : (
+                <>
+                  <p className="flex-1 font-medium text-slate-900">{cat.category}</p>
+                  <span className="text-xs text-slate-400">
+                    {cat.items?.length || 0} item{cat.items?.length === 1 ? "" : "s"}
+                  </span>
+                  <button
+                    onClick={() => handleRenameCategoryStart(cat)}
+                    className="text-sm font-medium text-amber-700 hover:underline"
+                  >
+                    Rename
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCategory(cat._id)}
+                    className="text-sm font-medium text-red-600 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mb-8 rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
+          No categories yet - add a food item below with a category name to create one.
+        </p>
+      )}
+
       <h2 className="mb-4 text-xl font-bold text-slate-900">Food Items</h2>
 
       <form
@@ -328,13 +441,30 @@ export default function AdminRestaurantDetailPage() {
           onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}
           className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
-        <input
-          type="text"
-          placeholder="Image URL (optional)"
-          value={itemForm.imageUrl}
-          onChange={(e) => setItemForm({ ...itemForm, imageUrl: e.target.value })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
-        />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Photo</label>
+          {editingItemImage && itemPreviews.length === 0 && (
+            <div className="mb-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={editingItemImage} alt="" className="h-16 w-16 rounded-lg object-cover" />
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleItemImagesChange}
+            className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
+          />
+          {itemPreviews.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {itemPreviews.map((src, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={i} src={src} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              ))}
+            </div>
+          )}
+        </div>
         <div className="flex gap-3">
           <button
             type="submit"

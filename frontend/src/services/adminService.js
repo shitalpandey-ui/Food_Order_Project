@@ -21,6 +21,21 @@ function buildRestaurantFormData(payload, images) {
   return formData;
 }
 
+// Same idea as buildRestaurantFormData, for food items - plain fields plus
+// however many image files were selected.
+function buildFoodItemFormData(payload, images) {
+  const formData = new FormData();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    formData.append(key, value);
+  });
+
+  (images || []).forEach((file) => formData.append('images', file));
+
+  return formData;
+}
+
 // Sends a FormData body via the native fetch API instead of axios. Axios has
 // to *detect* FormData and strip its own default Content-Type so the browser
 // can set the multipart boundary itself - fetch never has that ambiguity, it
@@ -75,13 +90,15 @@ export const adminService = {
     const res = await api.get(`/fooditems/items/${restaurantId}`);
     return res.data.data;
   },
-  createFoodItem: async (payload) => {
-    const res = await api.post('/fooditems/item', payload);
-    return res.data.data;
+  createFoodItem: async (payload, images) => {
+    const formData = buildFoodItemFormData(payload, images);
+    const data = await sendForm('POST', '/fooditems/item', formData);
+    return data.data;
   },
-  updateFoodItem: async (foodId, payload) => {
-    const res = await api.patch(`/fooditems/item/${foodId}`, payload);
-    return res.data.data;
+  updateFoodItem: async (foodId, payload, images) => {
+    const formData = buildFoodItemFormData(payload, images);
+    const data = await sendForm('PATCH', `/fooditems/item/${foodId}`, formData);
+    return data.data;
   },
   deleteFoodItem: async (foodId) => {
     await api.delete(`/fooditems/item/${foodId}`);
@@ -102,6 +119,14 @@ export const adminService = {
   },
   removeMenuItem: async (menuId, foodId) => {
     const res = await api.delete(`/menus/${menuId}/items/${foodId}`);
+    return res.data.data;
+  },
+  renameCategory: async (menuId, categoryId, category) => {
+    const res = await api.patch(`/menus/${menuId}/categories/${categoryId}`, { category });
+    return res.data.data;
+  },
+  deleteCategory: async (menuId, categoryId) => {
+    const res = await api.delete(`/menus/${menuId}/categories/${categoryId}`);
     return res.data.data;
   },
 };

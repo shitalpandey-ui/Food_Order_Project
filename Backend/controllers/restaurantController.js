@@ -2,6 +2,7 @@ const Restaurant = require("../models/restaurant");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const APIFeatures = require("../utils/apiFeatures");
+const buildImagesFromFiles = require("../utils/buildImagesFromFiles");
 
 // multipart/form-data sends every field as a string, so JSON-ish fields
 // (location, coordinates) and booleans need to be parsed back before saving.
@@ -27,19 +28,6 @@ function parseRestaurantBody(body) {
   delete parsed.images;
 
   return parsed;
-}
-
-// Turns multer's req.files into the {public_id, url} shape the Restaurant
-// model's images array expects, using the request host so links work
-// regardless of environment.
-function buildImagesFromFiles(req) {
-  if (!req.files || req.files.length === 0) return [];
-
-  const baseUrl = `${req.protocol}://${req.get("host")}`;
-  return req.files.map((file) => ({
-    public_id: file.filename,
-    url: `${baseUrl}/media/${file.filename}`,
-  }));
 }
 
 exports.getAllRestaurants = catchAsyncErrors(async(req,res,next) => {
