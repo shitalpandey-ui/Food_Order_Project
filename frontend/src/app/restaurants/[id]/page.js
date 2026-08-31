@@ -3,7 +3,7 @@
 import { notFound } from 'next/navigation';
 import { Star, StarHalf, MapPin, Square as SquareIcon, Dot } from 'lucide-react';
 import { getRestaurantById } from '@/app/restaurants/restaurant';
-import { getMenuByRestaurantId } from '@/app/restaurants/menu';
+import { getMenuByRestaurantId } from '@/app/restaurants/menu';11111142
 
 function StarRating({ rating }) {
   const fullStars = Math.floor(rating);

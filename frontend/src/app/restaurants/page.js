@@ -3,8 +3,6 @@
 import RestaurantCard from '@/components/RestaurantCard';
 import { getAllRestaurants } from '@/app/restaurants/restaurant';
 
-
-
 export default function RestaurantsPage() {
   const restaurants = getAllRestaurants();
 
@@ -12,7 +10,7 @@ export default function RestaurantsPage() {
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6 flex items-end justify-between">
         <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">Restaurants near you</h2>
-        <span className="text-sm text-slate-500">{restaurants.length} results</span>
+        <span className="text-m text-slate-500">{restaurants.length} results</span>
       </div>
 
       {restaurants.length === 0 ? (

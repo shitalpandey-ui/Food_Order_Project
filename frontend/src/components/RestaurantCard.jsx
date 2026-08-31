@@ -4,11 +4,15 @@
 
 import { useRouter } from 'next/navigation';
 import { Star, StarHalf, MapPin, Square as SquareIcon, Dot } from 'lucide-react';
+import { useCart } from "@/hooks/useCart";
+
 
 function StarRating({ rating }) {
   const safeRating = Number(rating) || 0;
   const fullStars = Math.floor(safeRating);
   const hasHalfStar = safeRating - fullStars >= 0.5;
+  const { addItem } = useCart();
+      <button onClick={() => addItem(food)}>Add to cart</button>
 
   return (
     <span className="inline-flex items-center gap-0.5" aria-hidden="true">
@@ -27,6 +31,7 @@ function StarRating({ rating }) {
     </span>
   );
 }
+
 
 function Square({ color }) {
   const colorClass = color === 'green' ? 'text-green-600' : 'text-red-600';
