@@ -130,7 +130,7 @@ export default function Home() {
               Featured Restaurants
             </h2>
             <Link
-              href="/restaurant"
+              href="/restaurants"
               className="font-semibold text-2xl text-black hover:text-orange-700"
             >
               View All
