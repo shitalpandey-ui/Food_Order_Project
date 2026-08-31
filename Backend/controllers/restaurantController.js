@@ -3,6 +3,45 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const APIFeatures = require("../utils/apiFeatures");
 
+// multipart/form-data sends every field as a string, so JSON-ish fields
+// (location, coordinates) and booleans need to be parsed back before saving.
+function parseRestaurantBody(body) {
+  const parsed = { ...body };
+
+  if (typeof parsed.location === "string") {
+    try {
+      parsed.location = JSON.parse(parsed.location);
+    } catch {
+      delete parsed.location;
+    }
+  }
+
+  if (typeof parsed.isVeg === "string") {
+    parsed.isVeg = parsed.isVeg === "true";
+  }
+
+  // Images are only ever set via the multer upload below - never trust a
+  // client-supplied `images` field (raw JSON, stray form field, etc.), since
+  // anything short of real uploaded files fails the images.* required
+  // validators (or lets a client set arbitrary image URLs).
+  delete parsed.images;
+
+  return parsed;
+}
+
+// Turns multer's req.files into the {public_id, url} shape the Restaurant
+// model's images array expects, using the request host so links work
+// regardless of environment.
+function buildImagesFromFiles(req) {
+  if (!req.files || req.files.length === 0) return [];
+
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+  return req.files.map((file) => ({
+    public_id: file.filename,
+    url: `${baseUrl}/media/${file.filename}`,
+  }));
+}
+
 exports.getAllRestaurants = catchAsyncErrors(async(req,res,next) => {
     const apiFeatures = new APIFeatures(Restaurant.find(),req.query)
     .search()
@@ -17,7 +56,11 @@ exports.getAllRestaurants = catchAsyncErrors(async(req,res,next) => {
 });
 
 exports.createRestaurant = catchAsyncErrors(async(req, res, next) => {
-    const restaurant = await Restaurant.create(req.body);
+    const body = parseRestaurantBody(req.body);
+    const images = buildImagesFromFiles(req);
+    if (images.length > 0) body.images = images;
+
+    const restaurant = await Restaurant.create(body);
 
     res.status(201).json({
         status:"success",
@@ -38,7 +81,16 @@ exports.getRestaurant = catchAsyncErrors(async(req, res, next) =>{
 });
 
 exports.updateRestaurant = catchAsyncErrors(async(req, res, next) => {
-    const restaurant = await Restaurant.findByIdAndUpdate(req.params.storeId, req.body, {
+    const body = parseRestaurantBody(req.body);
+    const newImages = buildImagesFromFiles(req);
+
+    if (newImages.length > 0) {
+        const existing = await Restaurant.findById(req.params.storeId).select("images");
+        if (!existing) return next(new ErrorHandler("No Restaurant found with that ID", 404));
+        body.images = [...existing.images, ...newImages];
+    }
+
+    const restaurant = await Restaurant.findByIdAndUpdate(req.params.storeId, body, {
         new: true,
         runValidators: true,
     });

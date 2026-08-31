@@ -1,71 +1,118 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { adminService } from "@/services/adminService";
 
-const emptyItemForm = { name: "", price: "", description: "", stock: "", imageUrl: "" };
+const emptyItemForm = { name: "", price: "", description: "", stock: "", imageUrl: "", category: "" };
+
+// Builds { foodItemId: categoryName } from a Menu doc so the food item list
+// can show/edit which category each item currently belongs to.
+function buildCategoryLookup(menu) {
+  const lookup = {};
+  (menu?.menu || []).forEach((cat) => {
+    (cat.items || []).forEach((item) => {
+      const itemId = typeof item === "string" ? item : item._id;
+      lookup[itemId] = cat.category || "Other";
+    });
+  });
+  return lookup;
+}
 
 export default function AdminRestaurantDetailPage() {
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [restaurantForm, setRestaurantForm] = useState({ name: "", address: "", isVeg: false });
+  const [restaurantImages, setRestaurantImages] = useState([]);
+  const [restaurantPreviews, setRestaurantPreviews] = useState([]);
+  const [savingRestaurant, setSavingRestaurant] = useState(false);
   const [foodItems, setFoodItems] = useState([]);
+  const [menu, setMenu] = useState(null);
   const [itemForm, setItemForm] = useState(emptyItemForm);
-  const [editingItemId, setEditingItemId] = useState(null); // start true instead of setting it in the effect
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editingItemCategory, setEditingItemCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const isFirstLoad = useRef(true);
+  const categoryByItemId = buildCategoryLookup(menu);
 
-const isFirstLoad = useRef(true);
+  const loadData = useCallback(async () => {
+    if (!isFirstLoad.current) {
+      setLoading(true);
+    }
+    try {
+      const [restaurantData, itemsData, menuData] = await Promise.all([
+        adminService.getRestaurant(id),
+        adminService.getFoodItems(id),
+        adminService.getMenu(id),
+      ]);
+      setRestaurant(restaurantData);
+      setRestaurantForm({
+        name: restaurantData.name,
+        address: restaurantData.address,
+        isVeg: restaurantData.isVeg,
+      });
+      setFoodItems(itemsData);
+      setMenu(menuData);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load restaurant");
+    } finally {
+      setLoading(false);
+      isFirstLoad.current = false;
+    }
+  }, [id]);
 
-const loadData = useCallback(async () => {
-  if (!isFirstLoad.current) {
-    setLoading(true);
-  }
-  try {
-    const [restaurantData, itemsData] = await Promise.all([
-      adminService.getRestaurant(id),
-      adminService.getFoodItems(id),
-    ]);
-    setRestaurant(restaurantData);
-    setRestaurantForm({
-      name: restaurantData.name,
-      address: restaurantData.address,
-      isVeg: restaurantData.isVeg,
-      isNonVeg: restaurantData.isNonVeg,
-      isBoth: restaurantData.isBoth,
-    });
-    setFoodItems(itemsData);
-  } catch (err) {
-    setError(err.response?.data?.message || "Failed to load restaurant");
-  } finally {
-    setLoading(false);
-    isFirstLoad.current = false;
-  }
-}, [id]);
+  const ensureMenu = async () => {
+    if (menu) return menu;
+    const created = await adminService.createMenu(id);
+    setMenu(created);
+    return created;
+  };
 
-useEffect(() => {
-  if (id) {
-    Promise.resolve().then(() => loadData());
-  }
-}, [id, loadData]);
+  useEffect(() => {
+    if (id) {
+      Promise.resolve().then(() => loadData());
+    }
+  }, [id, loadData]);
+
+  const handleRestaurantImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setRestaurantImages(files);
+    restaurantPreviews.forEach((url) => URL.revokeObjectURL(url));
+    setRestaurantPreviews(files.map((file) => URL.createObjectURL(file)));
+  };
 
   const handleRestaurantUpdate = async (e) => {
     e.preventDefault();
     setError("");
+    setSavingRestaurant(true);
     try {
-      const updated = await adminService.updateRestaurant(id, restaurantForm);
+      const updated = await adminService.updateRestaurant(
+        id,
+        {
+          name: restaurantForm.name,
+          address: restaurantForm.address,
+          isVeg: restaurantForm.isVeg,
+        },
+        restaurantImages
+      );
       setRestaurant(updated);
+      restaurantPreviews.forEach((url) => URL.revokeObjectURL(url));
+      setRestaurantImages([]);
+      setRestaurantPreviews([]);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update restaurant");
+    } finally {
+      setSavingRestaurant(false);
     }
   };
 
   const resetItemForm = () => {
     setItemForm(emptyItemForm);
     setEditingItemId(null);
+    setEditingItemCategory("");
   };
 
   const handleItemSubmit = async (e) => {
@@ -81,13 +128,27 @@ useEffect(() => {
         imageUrl: itemForm.imageUrl || undefined,
         restaurant: id,
       };
+      const category = itemForm.category.trim() || "Other";
 
       if (editingItemId) {
         const updated = await adminService.updateFoodItem(editingItemId, payload);
         setFoodItems((prev) => prev.map((f) => (f._id === editingItemId ? updated : f)));
+
+        if (category !== editingItemCategory) {
+          const activeMenu = await ensureMenu();
+          if (editingItemCategory) {
+            await adminService.removeMenuItem(activeMenu._id, editingItemId);
+          }
+          const updatedMenu = await adminService.addMenuItems(activeMenu._id, category, [editingItemId]);
+          setMenu(updatedMenu);
+        }
       } else {
         const created = await adminService.createFoodItem(payload);
         setFoodItems((prev) => [...prev, created]);
+
+        const activeMenu = await ensureMenu();
+        const updatedMenu = await adminService.addMenuItems(activeMenu._id, category, [created._id]);
+        setMenu(updatedMenu);
       }
       resetItemForm();
     } catch (err) {
@@ -98,13 +159,16 @@ useEffect(() => {
   };
 
   const handleEditItem = (item) => {
+    const category = categoryByItemId[item._id] || "";
     setEditingItemId(item._id);
+    setEditingItemCategory(category);
     setItemForm({
       name: item.name,
       price: item.price,
       description: item.description,
       stock: item.stock,
       imageUrl: item.images?.[0]?.url || "",
+      category,
     });
   };
 
@@ -113,84 +177,130 @@ useEffect(() => {
     try {
       await adminService.deleteFoodItem(foodId);
       setFoodItems((prev) => prev.filter((f) => f._id !== foodId));
+      // Backend already pulls the reference out of the menu; mirror that locally.
+      setMenu((prev) =>
+        prev
+          ? {
+              ...prev,
+              menu: prev.menu.map((cat) => ({
+                ...cat,
+                items: cat.items.filter((it) => (typeof it === "string" ? it : it._id) !== foodId),
+              })),
+            }
+          : prev
+      );
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete food item");
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (!restaurant) return <p>Restaurant not found.</p>;
+  if (loading) return <p className="text-slate-500">Loading...</p>;
+  if (!restaurant) return <p className="text-slate-500">Restaurant not found.</p>;
 
   return (
     <div>
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && (
+        <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
 
-      <form onSubmit={handleRestaurantUpdate} className="border rounded p-4 mb-8 grid gap-3 max-w-md">
-        <h3 className="font-medium">Restaurant Details</h3>
+      <form
+        onSubmit={handleRestaurantUpdate}
+        className="mb-10 grid max-w-lg gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      >
+        <h3 className="text-base font-semibold text-slate-800">Restaurant Details</h3>
+
+        {restaurant.images?.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {restaurant.images.map((img) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={img.public_id}
+                src={img.url}
+                alt={restaurant.name}
+                className="h-20 w-20 rounded-xl object-cover"
+              />
+            ))}
+          </div>
+        )}
+
         <input
           type="text"
           value={restaurantForm.name}
           onChange={(e) => setRestaurantForm({ ...restaurantForm, name: e.target.value })}
           required
-          className="border rounded px-3 py-2"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
         <input
           type="text"
           value={restaurantForm.address}
           onChange={(e) => setRestaurantForm({ ...restaurantForm, address: e.target.value })}
           required
-          className="border rounded px-3 py-2"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={restaurantForm.isVeg}
             onChange={(e) => setRestaurantForm({ ...restaurantForm, isVeg: e.target.checked })}
           />
-          Veg only
+          Vegetarian only
         </label>
-        <label className="flex items-center gap-2">
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Add more images / media
+          </label>
           <input
-            type="checkbox"
-            checked={restaurantForm.isNonVeg}
-            onChange={(e) => setRestaurantForm({ ...restaurantForm, isNonVeg: e.target.checked })}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            onChange={handleRestaurantImagesChange}
+            className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
           />
-          Non Veg Only
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={restaurantForm.isBoth}
-            onChange={(e) => setRestaurantForm({ ...restaurantForm, isBoth: e.target.checked })}
-          />
-          Both
-        </label>
+          {restaurantPreviews.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {restaurantPreviews.map((src, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={i} src={src} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              ))}
+            </div>
+          )}
+        </div>
+
         <button
           type="submit"
-          className="bg-amber-700 text-white px-4 py-2 rounded hover:bg-amber-800 w-fit"
+          disabled={savingRestaurant}
+          className="w-fit rounded-lg bg-amber-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:opacity-50"
         >
-          Save Changes
+          {savingRestaurant ? "Saving..." : "Save Changes"}
         </button>
       </form>
 
-      <h2 className="text-xl font-semibold mb-4">Food Items</h2>
+      <h2 className="mb-4 text-xl font-bold text-slate-900">Food Items</h2>
 
-      <form onSubmit={handleItemSubmit} className="border rounded p-4 mb-8 grid gap-3 max-w-md">
-        <h3 className="font-medium">{editingItemId ? "Edit Food Item" : "Add Food Item"}</h3>
+      <form
+        onSubmit={handleItemSubmit}
+        className="mb-8 grid max-w-lg gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      >
+        <h3 className="text-base font-semibold text-slate-800">
+          {editingItemId ? "Edit Food Item" : "Add Food Item"}
+        </h3>
         <input
           type="text"
           placeholder="Name"
           value={itemForm.name}
           onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
           required
-          className="border rounded px-3 py-2"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
         <textarea
           placeholder="Description"
           value={itemForm.description}
           onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
           required
-          className="border rounded px-3 py-2"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
         <div className="flex gap-3">
           <input
@@ -200,7 +310,7 @@ useEffect(() => {
             value={itemForm.price}
             onChange={(e) => setItemForm({ ...itemForm, price: e.target.value })}
             required
-            className="border rounded px-3 py-2 flex-1"
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
           />
           <input
             type="number"
@@ -208,21 +318,28 @@ useEffect(() => {
             value={itemForm.stock}
             onChange={(e) => setItemForm({ ...itemForm, stock: e.target.value })}
             required
-            className="border rounded px-3 py-2 flex-1"
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
           />
         </div>
+        <input
+          type="text"
+          placeholder="Category (e.g. Starters, Mains, Desserts)"
+          value={itemForm.category}
+          onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+        />
         <input
           type="text"
           placeholder="Image URL (optional)"
           value={itemForm.imageUrl}
           onChange={(e) => setItemForm({ ...itemForm, imageUrl: e.target.value })}
-          className="border rounded px-3 py-2"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
         <div className="flex gap-3">
           <button
             type="submit"
             disabled={submitting}
-            className="bg-amber-700 text-white px-4 py-2 rounded hover:bg-amber-800 disabled:opacity-50"
+            className="rounded-lg bg-amber-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:opacity-50"
           >
             {submitting ? "Saving..." : editingItemId ? "Update Item" : "Add Item"}
           </button>
@@ -230,7 +347,7 @@ useEffect(() => {
             <button
               type="button"
               onClick={resetItemForm}
-              className="px-4 py-2 rounded border hover:bg-gray-50"
+              className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium hover:bg-slate-50"
             >
               Cancel
             </button>
@@ -238,46 +355,52 @@ useEffect(() => {
         </div>
       </form>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="py-2">Name</th>
-            <th className="py-2">Price</th>
-            <th className="py-2">Stock</th>
-            <th className="py-2"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {foodItems.map((item) => (
-            <tr key={item._id} className="border-b">
-              <td className="py-2">{item.name}</td>
-              <td className="py-2">{item.price}</td>
-              <td className="py-2">{item.stock}</td>
-              <td className="py-2 flex gap-3">
-                <button
-                  onClick={() => handleEditItem(item)}
-                  className="text-amber-700 hover:underline"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteItem(item._id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-          {foodItems.length === 0 && (
-            <tr>
-              <td colSpan={4} className="py-4 text-gray-500">
-                No food items yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {foodItems.map((item) => (
+          <div
+            key={item._id}
+            className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+          >
+            {item.images?.[0]?.url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={item.images[0].url}
+                alt={item.name}
+                className="h-14 w-14 shrink-0 rounded-lg object-cover"
+              />
+            )}
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-slate-900">{item.name}</p>
+                {categoryByItemId[item._id] && (
+                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                    {categoryByItemId[item._id]}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-slate-500">
+                Rs {item.price} &middot; {item.stock} in stock
+              </p>
+            </div>
+            <div className="flex gap-3 text-sm">
+              <button onClick={() => handleEditItem(item)} className="font-medium text-amber-700 hover:underline">
+                Edit
+              </button>
+              <button
+                onClick={() => handleDeleteItem(item._id)}
+                className="font-medium text-red-600 hover:underline"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+        {foodItems.length === 0 && (
+          <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500 sm:col-span-2">
+            No food items yet.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,13 +1,13 @@
-//restaurant detail page
+//restaurant detail page - fetches the restaurant, its menu and food items from the backend
 
 import { notFound } from 'next/navigation';
-import { Star, StarHalf, MapPin, Square as SquareIcon, Dot } from 'lucide-react';
-import { getRestaurantById } from '@/app/restaurants/restaurant';
-import { getMenuByRestaurantId } from '@/app/restaurants/menu';11111142
+import { Star, StarHalf, MapPin } from 'lucide-react';
+import { getRestaurantById, getMenuByRestaurantId, getFoodItemsByRestaurant } from '@/services/api';
 
 function StarRating({ rating }) {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating - fullStars >= 0.5;
+  const safeRating = Number(rating) || 0;
+  const fullStars = Math.floor(safeRating);
+  const hasHalfStar = safeRating - fullStars >= 0.5;
 
   return (
     <span className="inline-flex items-center gap-0.5" aria-hidden="true">
@@ -27,57 +27,18 @@ function StarRating({ rating }) {
   );
 }
 
-function Square({ color }) {
-  const colorClass = color === 'green' ? 'text-green-600' : 'text-red-600';
- 
-  return (
-    <span className={`relative inline-flex h-3.5 w-3.5 items-center justify-center ${colorClass}`}>
-      <SquareIcon className="absolute inset-0 h-3.5 w-3.5" strokeWidth={2} />
-      <Dot className="h-3.5 w-3.5" strokeWidth={6} />
-    </span>
-  );
-}
- 
-function DietBadge({ dietType }) {
-  if (!dietType) return null;
- 
-  const isVeg = dietType === 'veg';
-  const isNonVeg = dietType === 'non-veg';
-  const isBoth = dietType === 'both';
- 
-  const label = isVeg ? 'Vegetarian' : isNonVeg ? 'Non-vegetarian' : 'Veg & non-veg options';
- 
-  return (
-    <span
-      className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 shadow-sm backdrop-blur"
-      title={label}
-      aria-label={label}
-    >
-      {isBoth ? (
-        <span className="inline-flex items-center gap-1">
-          <Square color="green" />
-          <Square color="red" />
-        </span>
-      ) : (
-        <Square color={isVeg ? 'green' : 'red'} />
-      )}
-    </span>
-  );
-}
-
 function MenuItemCard({ item }) {
+  const image = item.images?.[0]?.url;
+
   return (
     <div className="flex gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      {item.image && (
+      {image && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.image} alt={item.name} className="h-20 w-20 shrink-0 rounded-lg object-cover" />
+        <img src={image} alt={item.name} className="h-20 w-20 shrink-0 rounded-lg object-cover" />
       )}
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <DietBadge dietType={item.dietType} />
-            <h4 className="text-sm font-semibold text-slate-900 sm:text-base">{item.name}</h4>
-          </div>
+          <h4 className="text-sm font-semibold text-slate-900 sm:text-base">{item.name}</h4>
           <span className="shrink-0 text-sm font-semibold text-slate-800">Rs {item.price}</span>
         </div>
         {item.description && <p className="line-clamp-2 text-sm text-slate-500">{item.description}</p>}
@@ -86,53 +47,66 @@ function MenuItemCard({ item }) {
   );
 }
 
-function groupByCategory(menu) {
-  return menu.reduce((groups, item) => {
-    const category = item.category || 'Other';
-    if (!groups[category]) groups[category] = [];
-    groups[category].push(item);
-    return groups;
-  }, {});
+// Groups a Menu document's categories (populated with FoodItem docs) into
+// { category, items } pairs, dropping empty categories. Falls back to a
+// single "Menu" bucket of plain food items when no Menu doc exists yet.
+async function loadMenuCategories(restaurantId) {
+  const menu = await getMenuByRestaurantId(restaurantId).catch(() => null);
+
+  if (menu?.menu?.length) {
+    const categories = menu.menu
+      .filter((cat) => cat.items?.length)
+      .map((cat) => ({ category: cat.category || 'Other', items: cat.items }));
+
+    if (categories.length > 0) return categories;
+  }
+
+  const items = await getFoodItemsByRestaurant(restaurantId).catch(() => []);
+  return items.length > 0 ? [{ category: 'Menu', items }] : [];
 }
-//It reads the route parameter (id), fetches the restaurant details,
-//  and sets the page title to the restaurant's name. If the restaurant doesn't exist,
-//  it defaults to "Restaurant not found"
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const restaurant = getRestaurantById(id);
-  return { title: restaurant ? restaurant.name : 'Restaurant not found' };
+  try {
+    const restaurant = await getRestaurantById(id);
+    return { title: restaurant ? restaurant.name : 'Restaurant not found' };
+  } catch {
+    return { title: 'Restaurant not found' };
+  }
 }
-// It checks if a restaurant exists for the given id. 
-// If no restaurant is found, it calls Next.js’s built-in notFound() helper,
-//  which automatically triggers a 404 Not Found error page.
- export default async function RestaurantDetailPage({ params }) {
+
+export default async function RestaurantDetailPage({ params }) {
   const { id } = await params;
-  const restaurant = getRestaurantById(id);
+
+  let restaurant;
+  try {
+    restaurant = await getRestaurantById(id);
+  } catch {
+    notFound();
+  }
 
   if (!restaurant) {
     notFound();
   }
-// It shows how restaurant detail will be displayed
-  const { name, description, cuisine, address, rating, reviewCount, priceLevel, image } = restaurant;
-  const menu = getMenuByRestaurantId(restaurant.id);
-  const groupedMenu = groupByCategory(menu);
-  const categories = Object.keys(groupedMenu);
+
+  const { name, address, ratings, numOfReviews, images } = restaurant;
+  const image = images?.[0]?.url;
+  const categories = await loadMenuCategories(id);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        {image && (
+        {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={image} alt={name} className="h-56 w-full object-cover sm:h-72" />
+        ) : (
+          <div className="flex h-56 w-full items-center justify-center bg-slate-100 text-slate-400 sm:h-72">
+            No image
+          </div>
         )}
         <div className="p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-2">
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{name}</h1>
-            {priceLevel && <span className="text-sm font-medium text-slate-500">{priceLevel}</span>}
-          </div>
-          {cuisine && <p className="mt-1 text-sm font-medium text-orange-600">{cuisine}</p>}
-          <p className="mt-2 text-sm text-slate-600">{description}</p>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{name}</h1>
 
           {address && (
             <div className="mt-3 flex items-center gap-1.5 text-sm text-slate-500">
@@ -142,10 +116,10 @@ export async function generateMetadata({ params }) {
           )}
 
           <div className="mt-3 flex items-center gap-2 text-sm">
-            <StarRating rating={rating} />
-            <span className="font-medium text-slate-800">{rating.toFixed(1)} stars</span>
+            <StarRating rating={ratings} />
+            <span className="font-medium text-slate-800">{Number(ratings || 0).toFixed(1)} stars</span>
             <span className="text-slate-400">&middot;</span>
-            <span className="text-slate-500">{reviewCount} reviews</span>
+            <span className="text-slate-500">{numOfReviews || 0} reviews</span>
           </div>
         </div>
       </div>
@@ -159,12 +133,12 @@ export async function generateMetadata({ params }) {
         </p>
       ) : (
         <div className="flex flex-col gap-8">
-          {categories.map((category) => (
+          {categories.map(({ category, items }) => (
             <div key={category}>
               <h3 className="mb-3 text-lg font-semibold text-slate-800">{category}</h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {groupedMenu[category].map((item) => (
-                  <MenuItemCard key={item.id} item={item} />
+                {items.map((item) => (
+                  <MenuItemCard key={item._id} item={item} />
                 ))}
               </div>
             </div>
@@ -173,4 +147,4 @@ export async function generateMetadata({ params }) {
       )}
     </div>
   );
- }
+}

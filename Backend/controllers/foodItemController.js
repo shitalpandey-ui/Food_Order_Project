@@ -1,4 +1,5 @@
 const Fooditem = require("../models/foodItem");
+const Menu = require("../models/menu");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsync = require("../middleware/catchAsyncErrors");
 const APIFeatures = require("../utils/apiFeatures");
@@ -74,6 +75,13 @@ exports.deleteFoodItem = catchAsync(async (req, res, next) => {
 
   if (!foodItem)
     return next(new ErrorHandler("No document found with that ID", 404));
+
+  // Drop any dangling references so a deleted item doesn't keep showing up
+  // in the restaurant's menu categories.
+  await Menu.updateMany(
+    { restaurant: foodItem.restaurant },
+    { $pull: { "menu.$[].items": foodItem._id } }
+  );
 
   res.status(204).json({
     status: "success",
