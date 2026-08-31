@@ -1,6 +1,5 @@
 
 
-
 export const MENUS_BY_RESTAURANT = {
   'sakura-ramen': [
     {

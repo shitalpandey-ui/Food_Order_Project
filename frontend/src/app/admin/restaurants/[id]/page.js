@@ -34,6 +34,8 @@ const loadData = useCallback(async () => {
       name: restaurantData.name,
       address: restaurantData.address,
       isVeg: restaurantData.isVeg,
+      isNonVeg: restaurantData.isNonVeg,
+      isBoth: restaurantData.isBoth,
     });
     setFoodItems(itemsData);
   } catch (err) {
@@ -146,6 +148,22 @@ useEffect(() => {
             onChange={(e) => setRestaurantForm({ ...restaurantForm, isVeg: e.target.checked })}
           />
           Veg only
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={restaurantForm.isNonVeg}
+            onChange={(e) => setRestaurantForm({ ...restaurantForm, isNonVeg: e.target.checked })}
+          />
+          Non Veg Only
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={restaurantForm.isBoth}
+            onChange={(e) => setRestaurantForm({ ...restaurantForm, isBoth: e.target.checked })}
+          />
+          Both
         </label>
         <button
           type="submit"
