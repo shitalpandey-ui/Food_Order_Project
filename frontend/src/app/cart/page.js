@@ -6,9 +6,9 @@ import CartItem from "@/components/CartItem";
 import CartSummary from "@/components/CartSummary";
 
 export default function CartPage() {
-  const { items, hydrated } = useCart();
+  const { items, hydrated, error } = useCart();
 
-  // Avoid flashing "empty cart" before localStorage has loaded.
+  // Avoid flashing "empty cart" before localStorage/the server cart has loaded.
   if (!hydrated) {
     return <div className="max-w-5xl mx-auto px-4 py-10">Loading cart…</div>;
   }
@@ -16,6 +16,12 @@ export default function CartPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <h1 className="text-4xl font-bold text-gray-900 mb-6">Your Cart</h1>
+
+      {error && (
+        <p className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
 
       {items.length === 0 ? (
         <div className="text-center py-20 text-2xl text-gray-500">

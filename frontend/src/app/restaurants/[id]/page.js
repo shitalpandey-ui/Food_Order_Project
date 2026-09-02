@@ -3,6 +3,7 @@
 import { notFound } from 'next/navigation';
 import { Star, StarHalf, MapPin } from 'lucide-react';
 import { getRestaurantById, getMenuByRestaurantId, getFoodItemsByRestaurant } from '@/services/api';
+import MenuItemCard from '@/components/MenuItemCard';
 
 function StarRating({ rating }) {
   const safeRating = Number(rating) || 0;
@@ -24,26 +25,6 @@ function StarRating({ rating }) {
         return <Star key={i} className="h-4 w-4 fill-slate-300 text-slate-300" strokeWidth={1.5} />;
       })}
     </span>
-  );
-}
-
-function MenuItemCard({ item }) {
-  const image = item.images?.[0]?.url;
-
-  return (
-    <div className="flex gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      {image && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={image} alt={item.name} className="h-20 w-20 shrink-0 rounded-lg object-cover" />
-      )}
-      <div className="flex flex-1 flex-col gap-1">
-        <div className="flex items-start justify-between gap-2">
-          <h4 className="text-sm font-semibold text-slate-900 sm:text-base">{item.name}</h4>
-          <span className="shrink-0 text-sm font-semibold text-slate-800">Rs {item.price}</span>
-        </div>
-        {item.description && <p className="line-clamp-2 text-sm text-slate-500">{item.description}</p>}
-      </div>
-    </div>
   );
 }
 
@@ -138,7 +119,7 @@ export default async function RestaurantDetailPage({ params }) {
               <h3 className="mb-3 text-lg font-semibold text-slate-800">{category}</h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {items.map((item) => (
-                  <MenuItemCard key={item._id} item={item} />
+                  <MenuItemCard key={item._id} item={item} restaurantId={id} />
                 ))}
               </div>
             </div>

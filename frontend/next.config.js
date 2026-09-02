@@ -9,10 +9,16 @@ const nextConfig = {
       },
     ];
   },
-};
-
-module.exports = {
   images: {
-    remotePatterns: [{ hostname: "your-image-host.com" }],
+    remotePatterns: [
+      { hostname: "localhost" },
+      { hostname: "images.unsplash.com" },
+      { hostname: "plus.unsplash.com" },
+      { hostname: "b.zmtcdn.com" },
+      { hostname: "media.istockphoto.com" },
+      { hostname: "media-assets.swiggy.com" },
+    ],
   },
 };
+
+module.exports = nextConfig;

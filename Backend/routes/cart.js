@@ -1,14 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController");
-const cartController = require("../controllers/cartController");
+const { protect } = require("../controllers/authController");
+const {
+  getCart,
+  addItemToCart,
+  updateCartItemQuantity,
+  deleteCartItem,
+  clearCart,
+} = require("../controllers/cartController");
 
-// Add to cart
-router.post("/add-to-cart", cartController.addItemToCart);
+// Every cart route is scoped to the logged-in user (req.user.id) - none of
+// them trust a client-supplied user id.
+router.use(protect);
 
-// Update cart item quantity
-router.post("/update-cart-item", cartController.updateCartItemQuantity);
-router.delete("/delete-cart-item", cartController.deleteCartItem);
-router.get("/get-cart", authController.protect, cartController.getCartItem);
+router.route("/").get(getCart).delete(clearCart);
+router.route("/items").post(addItemToCart);
+router
+  .route("/items/:foodItemId")
+  .patch(updateCartItemQuantity)
+  .delete(deleteCartItem);
 
 module.exports = router;
