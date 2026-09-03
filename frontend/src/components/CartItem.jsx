@@ -22,13 +22,6 @@ export default function CartItem({ item }) {
       <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
         {item.image && (
           <Image src={item.image} alt={item.name} fill className="object-cover" />
-          
-        )}
-      </div>
-       <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-        {restaurant.image && (
-        <Image src={restaurant.image} alt={restaurant.name} width={300} height={200} className="object-cover" />  
-          
         )}
       </div>
 

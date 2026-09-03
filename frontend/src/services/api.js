@@ -4,8 +4,10 @@
 
 import axios from 'axios';
 
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ||'http://localhost:8000/api',
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -56,7 +58,17 @@ export const getRestaurants = async () => {
 
 export const getRestaurantById = async (id) => {
   const res = await api.get(`/restaurants/${id}`);
-  return res.data;
+  return res.data.data;
+};
+
+export const getMenuByRestaurantId = async (id) => {
+  const res = await api.get(`/menus/restaurant/${id}`);
+  return res.data.data; // null if no menu has been set up yet
+};
+
+export const getFoodItemsByRestaurant = async (id) => {
+  const res = await api.get(`/fooditems/items/${id}`);
+  return res.data.data;
 };
 
 export const placeOrder = async (orderData) => {

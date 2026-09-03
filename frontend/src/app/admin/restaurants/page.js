@@ -1,17 +1,26 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { adminService } from "@/services/adminService";
 
-const emptyForm = { name: "", address: "", isVeg: false, isNonVeg: false, contact: "", lng: "" };
+const emptyForm = { name: "", address: "", isVeg: false, lat: "", lng: "" };
 
 export default function AdminRestaurantsPage() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [form, setForm] = useState(emptyForm);
+  const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setImages(files);
+    previews.forEach((url) => URL.revokeObjectURL(url));
+    setPreviews(files.map((file) => URL.createObjectURL(file)));
+  };
 
   const loadRestaurants = async () => {
     setLoading(true);
@@ -35,17 +44,22 @@ export default function AdminRestaurantsPage() {
     setError("");
     setSubmitting(true);
     try {
-      await adminService.createRestaurant({
-        name: form.name,
-        address: form.address,
-        isVeg: form.isVeg,
-        isNonVeg: form.isNonVeg,
-        location: {
-          type: "Point",
-          coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
+      await adminService.createRestaurant(
+        {
+          name: form.name,
+          address: form.address,
+          isVeg: form.isVeg,
+          location: {
+            type: "Point",
+            coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
+          },
         },
-      });
+        images
+      );
       setForm(emptyForm);
+      previews.forEach((url) => URL.revokeObjectURL(url));
+      setImages([]);
+      setPreviews([]);
       await loadRestaurants();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create restaurant");
@@ -66,19 +80,26 @@ export default function AdminRestaurantsPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">Restaurants</h2>
+      <h2 className="mb-6 text-2xl font-bold text-slate-900">Restaurants</h2>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && (
+        <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
 
-      <form onSubmit={handleCreate} className="border rounded p-4 mb-8 grid gap-3 max-w-md">
-        <h3 className="font-medium">Add Restaurant</h3>
+      <form
+        onSubmit={handleCreate}
+        className="mb-10 grid max-w-lg gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      >
+        <h3 className="text-base font-semibold text-slate-800">Add Restaurant</h3>
         <input
           type="text"
           placeholder="Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
-          className="border rounded px-3 py-2"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
         <input
           type="text"
@@ -86,7 +107,7 @@ export default function AdminRestaurantsPage() {
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
           required
-          className="border rounded px-3 py-2"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
         <div className="flex gap-3">
           <input
@@ -95,7 +116,7 @@ export default function AdminRestaurantsPage() {
             placeholder="Latitude"
             value={form.lat}
             onChange={(e) => setForm({ ...form, lat: e.target.value })}
-            className="border rounded px-3 py-2 flex-1"
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
           />
           <input
             type="number"
@@ -103,79 +124,96 @@ export default function AdminRestaurantsPage() {
             placeholder="Longitude"
             value={form.lng}
             onChange={(e) => setForm({ ...form, lng: e.target.value })}
-            className="border rounded px-3 py-2 flex-1"
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
           />
         </div>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={form.isVeg}
             onChange={(e) => setForm({ ...form, isVeg: e.target.checked })}
           />
-          Veg 
+          Vegetarian only
         </label>
-         <label className="flex items-center gap-2">
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Restaurant images / media
+          </label>
           <input
-            type="checkbox"
-            checked={form.isNonVeg}
-            onChange={(e) => setForm({ ...form, isNonVeg: e.target.checked })}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            onChange={handleImagesChange}
+            className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
           />
-          Non Veg
-        </label>
+          {previews.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {previews.map((src, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={i} src={src} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              ))}
+            </div>
+          )}
+        </div>
+
         <button
           type="submit"
           disabled={submitting}
-          className="bg-amber-700 text-white px-4 py-2 rounded hover:bg-amber-800 disabled:opacity-50"
+          className="w-fit rounded-lg bg-amber-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:opacity-50"
         >
           {submitting ? "Adding..." : "Add Restaurant"}
         </button>
       </form>
 
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-slate-500">Loading...</p>
+      ) : restaurants.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
+          No restaurants yet.
+        </p>
       ) : (
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="text-left border-b">
-              <th className="py-2">Name</th>
-              <th className="py-2">Address</th>
-              <th className="py-2">Veg</th>
-              <th className="py-2">NonVeg</th>
-              <th className="py-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {restaurants.map((r) => (
-              <tr key={r._id} className="border-b">
-                <td className="py-2">{r.name}</td>
-                <td className="py-2">{r.address}</td>
-                <td className="py-2">{r.isVeg ? "Yes" : "No"}</td>
-                <td className="py-2">{r.isNonVeg ? "Yes" : "No"}</td>
-                <td className="py-2 flex gap-3">
-                  <Link
-                    href={`/admin/restaurants/${r._id}`}
-                    className="text-amber-700 text-xl hover:underline"
-                  >
-                    Manage
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(r._id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {restaurants.length === 0 && (
-              <tr>
-                <td colSpan={4} className="py-4 text-gray-500">
-                  No restaurants yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {restaurants.map((r) => {
+            const thumb = r.images?.[0]?.url;
+            return (
+              <div
+                key={r._id}
+                className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                  {thumb ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={thumb} alt={r.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
+                      No image
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-1 flex-col gap-1">
+                  <h3 className="font-semibold text-slate-900">{r.name}</h3>
+                  <p className="line-clamp-1 text-sm text-slate-500">{r.address}</p>
+                  <p className="text-xs text-slate-400">{r.isVeg ? "Vegetarian" : "All diets"}</p>
+                  <div className="mt-auto flex gap-3 pt-2">
+                    <Link
+                      href={`/admin/restaurants/${r._id}`}
+                      className="text-sm font-medium text-amber-700 hover:underline"
+                    >
+                      Manage
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(r._id)}
+                      className="text-sm font-medium text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,12 @@
 const ErrorHandler = require("../utils/errorHandler");
 
 module.exports = (err, req, res, next) => {
+  // Multer throws plain/MulterError instances with no statusCode for bad
+  // uploads (wrong file type, too large, etc.) - treat those as client errors.
+  if (err.name === "MulterError" || /file(s)? are allowed/.test(err.message || "")) {
+    err.statusCode = 400;
+  }
+
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
 

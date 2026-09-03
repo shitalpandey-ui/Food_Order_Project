@@ -4,15 +4,12 @@
 
 import { useRouter } from 'next/navigation';
 import { Star, StarHalf, MapPin, Square as SquareIcon, Dot } from 'lucide-react';
-import { useCart } from "@/hooks/useCart";
 
 
 function StarRating({ rating }) {
   const safeRating = Number(rating) || 0;
   const fullStars = Math.floor(safeRating);
   const hasHalfStar = safeRating - fullStars >= 0.5;
-  const { addItem } = useCart();
-      <button onClick={() => addItem(food)}>Add to cart</button>
 
   return (
     <span className="inline-flex items-center gap-0.5" aria-hidden="true">
@@ -72,7 +69,22 @@ function DietBadge({ dietType }) {
 
 export default function RestaurantCard({ restaurant }) {
   const router = useRouter();
-  const { id, name, description, cuisine, rating, reviewCount, priceLevel, address, dietType, image } = restaurant;
+  const {
+    name,
+    description,
+    cuisine,
+    priceLevel,
+    address,
+  } = restaurant;
+
+  // Real restaurant docs from the backend use different field names
+  // (_id, images[], ratings, numOfReviews, isVeg) than the local dummy
+  // dataset (id, image, rating, reviewCount, dietType) - normalize once here.
+  const id = restaurant.id ?? restaurant._id;
+  const image = restaurant.image ?? restaurant.images?.[0]?.url;
+  const rating = restaurant.rating ?? restaurant.ratings;
+  const reviewCount = restaurant.reviewCount ?? restaurant.numOfReviews;
+  const dietType = restaurant.dietType ?? (restaurant.isVeg ? 'veg' : undefined);
 
   // `rating` can be missing/null/a string depending on the data source.
   // Normalize it once here so nothing downstream has to guess.
