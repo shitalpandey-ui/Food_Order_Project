@@ -14,9 +14,10 @@ export default function CartPage() {
   }
 
   return (
+   
     <div className="max-w-6xl mx-auto px-4 py-10">
       <h1 className="text-4xl font-bold text-gray-900 mb-6">Your Cart</h1>
-
+         
       {error && (
         <p className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
           {error}

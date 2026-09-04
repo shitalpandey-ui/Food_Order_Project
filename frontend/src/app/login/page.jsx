@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import BrandPanel from "@/components/BrandPanel";
+import { usePathname } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const pathname = usePathname();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,6 +20,9 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login({ email, password });
+
+      router.push('/')
+      router.refresh();
     } catch (err) {
       setError(err);
     } finally {
@@ -33,23 +38,31 @@ export default function LoginPage() {
         <BrandPanel />
 
         {/* Right Side: Login Form (Cream background matching the reference) */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-[#F5EFE6] text-[#1C1815]">
-          <div className="w-full h-40 max-w-md flex flex-col *:gap-6">
-            {/* Toggle Tabs (Log in / Sign up) */}
-            <div className="flex rounded-4xl h-20 bg-[#E8E2D5] p-5 mb-10">
-              <Link
-                href="/login"
-                className="w-1/2   padding-7 text-center text-2xl font-mediumbold rounded-lg bg-white shadow-m hover:bg- #f26522 text-charcoal transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="w-1/2 text-center text-2xl font-mediumbold text-[#7A7062] hover:bg- #f26522 hover:text-charcoal transition-colors"
-              >
-                Sign up
-              </Link>
-            </div>
+       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-[#F5EFE6] text-[#1C1815]">
+  <div className="w-full max-w-md flex flex-col gap-6">
+    {/* Toggle Tabs (Log in / Sign up) */}
+    <div className="flex rounded-full h-20 bg-[#E8E2D5] p-2 mb-10">
+      <Link
+        href="/login"
+        className={`w-1/2 flex items-center justify-center text-2xl font-semibold rounded-full transition-colors ${
+          pathname === "/login"
+            ? "bg-[#f26522] text-white shadow-md"
+            : "text-[#7A7062] hover:bg-[#f26522] hover:text-white"
+        }`}
+      >
+        Log in
+      </Link>
+      <Link
+        href="/signup"
+        className={`w-1/2 flex items-center justify-center text-2xl font-semibold rounded-full transition-colors ${
+          pathname === "/signup"
+            ? "bg-[#f26522] text-white shadow-md"
+            : "text-[#7A7062] hover:bg-[#f26522] hover:text-white"
+        }`}
+      >
+        Sign up
+      </Link>
+    </div>
 
             {error && (
               <div className="rounded-lg bg-red-100 p-4 text-sm text-red-700 border border-red-200">

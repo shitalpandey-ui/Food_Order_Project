@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCart } from "@/hooks/useCart";
+import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/app/formatPrice";
 
 export default function CartItem({ item }) {

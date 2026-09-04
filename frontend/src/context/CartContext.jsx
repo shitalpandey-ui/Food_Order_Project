@@ -7,13 +7,13 @@ import { cartService, normalizeServerCart } from "@/services/cartService";
 /**
  * Cart item shape (kept flat so it's easy to persist/serialize):
  * {
- *   id: string          -> food item id from the backend
+ *   id: string             -> food item id from the backend
  *   restaurantId: string
  *   name: string
  *   price: number
  *   image: string
  *   qty: number
- *   selected: boolean   -> whether this line is included in "place order"
+ *   selected: boolean      -> whether this line is included in "place order"
  * }
  *
  * Guests (not logged in) get a localStorage-backed cart, exactly as before.
@@ -128,7 +128,7 @@ function cartReducer(state, action) {
   }
 }
 
-export const CartContext = createContext(undefined);
+export const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
@@ -306,4 +306,12 @@ export function CartProvider({ children }) {
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
+export function useCart() {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
+  return context;
 }

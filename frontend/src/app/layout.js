@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "QuickBites — Sign in",
-  description: "Log in, sign up, or reset your password for Tiffin food delivery.",
+  description: "Log in, sign up, or reset your password for QuickBites food delivery.",
 };
 export default function RootLayout({ children }) {
   return (

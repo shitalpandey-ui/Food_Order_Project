@@ -9,6 +9,7 @@ const nextConfig = {
       },
     ];
   },
+  
   images: {
     remotePatterns: [
       { hostname: "localhost" },

@@ -41,26 +41,26 @@ export default function SignupPage() {
           <div className="w-full max-w-md flex flex-col *:gap-6">
             {/* Toggle Tabs (Log in / Sign up) */}
             <div className="flex rounded-4xl h-20 bg-[#E8E2D5] p-5 mb-10">
-              <Link
-  href="/login"
-  className={`w-1/2 flex items-center justify-center text-center text-2xl font-mediumbold rounded-lg transition-colors ${
-    pathname === "/login"
-      ? "bg-white shadow-m text-[#1C1815]"
-      : "text-[#7A7062] hover:bg- #f26522 hover:text-charcoal-500"
-  }`}>
-
-  Log in
-</Link>
-<Link
-  href="/signup"
-  className={`w-1/2 flex items-center justify-center text-center text-2xl font-mediumbold rounded-lg transition-colors ${
-    pathname === "/signup"
-      ? "bg-white shadow-m text-[#1C1815]"
-      : "text-[#7A7062] hover:bg- #f26522 hover:text-charcoal-500"
-  }`}>
-
-  Sign up
-</Link>
+        <Link
+        href="/login"
+        className={`w-1/2 flex items-center justify-center text-2xl font-semibold rounded-full transition-colors ${
+          pathname === "/login"
+            ? "bg-[#f26522] text-white shadow-md"
+            : "text-[#7A7062] hover:bg-[#f26522] hover:text-white"
+        }`}
+      >
+        Log in
+      </Link>
+      <Link
+        href="/signup"
+        className={`w-1/2 flex items-center justify-center text-2xl font-semibold rounded-full transition-colors ${
+          pathname === "/signup"
+            ? "bg-[#f26522] text-white shadow-md"
+            : "text-[#7A7062] hover:bg-[#f26522] hover:text-white"
+        }`}
+      >
+        Sign up
+      </Link>
             </div>
 
             {error && (
@@ -139,7 +139,7 @@ export default function SignupPage() {
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     className="block w-full rounded-xl bg-white border border-[#E0D8CC] px-4 py-3 text-m text-charcoal shadow-sm focus:border-turmeric focus:outline-none focus:ring-1 focus:ring-turmeric"
-                    placeholder="0000000000"
+                    placeholder="xxxxxxxxxx"
                   />
                 </div>
 
