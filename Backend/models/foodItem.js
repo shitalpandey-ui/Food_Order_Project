@@ -70,7 +70,6 @@ const foodSchema = new mongoose.Schema({
       },
     },
   ],
-  ///////////ai///////////////////////
     aiDescription: {
     type: String,
     default: "",

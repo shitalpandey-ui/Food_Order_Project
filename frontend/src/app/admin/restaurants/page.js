@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { adminService } from "@/services/adminService";
 
 const emptyForm = { name: "", address: "", isVeg: false, lat: "", lng: "" };
@@ -49,6 +50,20 @@ export default function AdminRestaurantsPage() {
           name: form.name,
           address: form.address,
           isVeg: form.isVeg,
+          location: {
+            type: "Point",
+            coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
+          },
+           name: form.name,
+          address: form.address,
+          isNonVeg: form.isNonVeg,
+          location: {
+            type: "Point",
+            coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
+          },
+           name: form.name,
+          address: form.address,
+          isBoth: form.isBoth,
           location: {
             type: "Point",
             coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
@@ -135,23 +150,40 @@ export default function AdminRestaurantsPage() {
           />
           Vegetarian only
         </label>
+         <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.isNonVeg}
+            onChange={(e) => setForm({ ...form, isVeg: e.target.checked })}
+          />
+          NonVegeterian meal
+        </label>
+         <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.isBoth}
+            onChange={(e) => setForm({ ...form, isVeg: e.target.checked })}
+          />
+          Both
+                  </label>
 
         <div>
+                 <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">
-            Restaurant images / media
+            Restaurant image URL
           </label>
           <input
-            type="file"
-            accept="image/*,video/*"
-            multiple
+            type="url"
+            placeholder="https://example.com/image.jpg"
             onChange={handleImagesChange}
-            className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
+            className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
           />
+        </div>
           {previews.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {previews.map((src, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={src} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              
+                <Image key={i} src={src} alt="" className="h-16 w-16 rounded-lg object-cover" />
               ))}
             </div>
           )}
@@ -194,17 +226,17 @@ export default function AdminRestaurantsPage() {
                 <div className="flex flex-1 flex-col gap-1">
                   <h3 className="font-semibold text-slate-900">{r.name}</h3>
                   <p className="line-clamp-1 text-sm text-slate-500">{r.address}</p>
-                  <p className="text-xs text-slate-400">{r.isVeg ? "Vegetarian" : "All diets"}</p>
+                  <p className="text-m text-slate-400">{r.isVeg ? "Vegetarian" : "All diets"}</p>
                   <div className="mt-auto flex gap-3 pt-2">
                     <Link
                       href={`/admin/restaurants/${r._id}`}
-                      className="text-sm font-medium text-amber-700 hover:underline"
+                      className="text-m font-medium text-amber-700 hover:underline"
                     >
                       Manage
                     </Link>
                     <button
                       onClick={() => handleDelete(r._id)}
-                      className="text-sm font-medium text-red-600 hover:underline"
+                      className="text-m font-medium text-red-600 hover:underline"
                     >
                       Delete
                     </button>

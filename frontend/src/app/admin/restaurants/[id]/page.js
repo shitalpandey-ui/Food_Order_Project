@@ -108,6 +108,16 @@ export default function AdminRestaurantDetailPage() {
           address: restaurantForm.address,
           isVeg: restaurantForm.isVeg,
         },
+        {
+          name: restaurantForm.name,
+          address: restaurantForm.address,
+          isNonVeg: restaurantForm.isNonVeg,
+        },
+        {
+          name: restaurantForm.name,
+          address: restaurantForm.address,
+          isBoth: restaurantForm.isBoth,
+        },
         restaurantImages
       );
       setRestaurant(updated);
@@ -299,14 +309,22 @@ export default function AdminRestaurantDetailPage() {
           />
           Vegetarian only
         </label>
+        <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={restaurantForm.isNonVeg}
+            onChange={(e) => setRestaurantForm({ ...restaurantForm, isVeg: e.target.checked })}
+          />
+          Non Vegeterian
+        </label>
 
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">
             Add more images / media
           </label>
           <input
-            type="file"
-            accept="image/*,video/*"
+            type="url"
+            accept="https://example.com/image.jpg"
             multiple
             onChange={handleRestaurantImagesChange}
             className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-100"
@@ -350,14 +368,14 @@ export default function AdminRestaurantDetailPage() {
                   />
                   <button
                     type="submit"
-                    className="text-sm font-medium text-amber-700 hover:underline"
+                    className="text-xl font-medium text-amber-700 hover:underline"
                   >
                     Save
                   </button>
                   <button
                     type="button"
                     onClick={handleRenameCategoryCancel}
-                    className="text-sm font-medium text-slate-500 hover:underline"
+                    className="text-xl font-medium text-slate-500 hover:underline"
                   >
                     Cancel
                   </button>
@@ -370,13 +388,13 @@ export default function AdminRestaurantDetailPage() {
                   </span>
                   <button
                     onClick={() => handleRenameCategoryStart(cat)}
-                    className="text-sm font-medium text-amber-700 hover:underline"
+                    className="text-xl font-medium text-amber-700 hover:underline"
                   >
                     Rename
                   </button>
                   <button
                     onClick={() => handleDeleteCategory(cat._id)}
-                    className="text-sm font-medium text-red-600 hover:underline"
+                    className="text-xl font-medium text-red-600 hover:underline"
                   >
                     Delete
                   </button>

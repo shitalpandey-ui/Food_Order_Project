@@ -6,9 +6,11 @@
 import { useState, useEffect } from 'react'; // used for state and side effects
 import Image from 'next/image'; // from next.js for optimized images and client side navigation
 import Link from 'next/link';
+
 import { getRestaurants } from '@/services/api';
 import Loader from '@/components/Loader';
 import RestaurantCard from '@/components/RestaurantCard';
+
 
 const categories = [
   { name: 'Pizza', icon: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&auto=format&fit=crop' },
@@ -56,14 +58,14 @@ export default function Home() {
     <>
       {/* Hero */}
       <section
-        className="relative flex h-[500px] items-center justify-center bg-cover bg-center text-center text-white mb-40"
+        className="relative flex h-[600px] items-center justify-center bg-cover bg-center text-center text-white mb-40 "
         style={{
           backgroundImage:
             "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/images/hero-bg.jpg')",
         }}
       >
         <div className="px-4">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-5">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-5 ">
             Instant Gratification
           </h1>
           <p className="text-lg md:text-xl mb-4">
