@@ -13,6 +13,14 @@ const restaurantSchema = new mongoose.Schema({
         default: false,
 
     },
+    isNonVeg:{
+        type: Boolean,
+        default: false,
+    },
+    isBoth:{
+        type: Boolean,
+        default:false,
+    },
     address:{
         type:String,
         required:[true,"Please enter the restaurant address"],

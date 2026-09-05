@@ -2,26 +2,25 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { adminService } from "@/services/adminService";
 
-const emptyForm = { name: "", address: "", isVeg: false, lat: "", lng: "" };
+const emptyForm = {
+  name: "",
+  address: "",
+  isVeg: false,
+  isNonVeg: false,
+  isBoth: false,
+  lat: "",
+  lng: "",
+  imageUrl: "",
+};
 
 export default function AdminRestaurantsPage() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [form, setForm] = useState(emptyForm);
-  const [images, setImages] = useState([]);
-  const [previews, setPreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-
-  const handleImagesChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    setImages(files);
-    previews.forEach((url) => URL.revokeObjectURL(url));
-    setPreviews(files.map((file) => URL.createObjectURL(file)));
-  };
 
   const loadRestaurants = async () => {
     setLoading(true);
@@ -35,46 +34,29 @@ export default function AdminRestaurantsPage() {
     }
   };
 
- useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern
-  loadRestaurants();
-}, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern
+    loadRestaurants();
+  }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
     try {
-      await adminService.createRestaurant(
-        {
-          name: form.name,
-          address: form.address,
-          isVeg: form.isVeg,
-          location: {
-            type: "Point",
-            coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
-          },
-           name: form.name,
-          address: form.address,
-          isNonVeg: form.isNonVeg,
-          location: {
-            type: "Point",
-            coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
-          },
-           name: form.name,
-          address: form.address,
-          isBoth: form.isBoth,
-          location: {
-            type: "Point",
-            coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
-          },
+      await adminService.createRestaurant({
+        name: form.name,
+        address: form.address,
+        isVeg: form.isVeg,
+        isNonVeg: form.isNonVeg,
+        isBoth: form.isBoth,
+        location: {
+          type: "Point",
+          coordinates: [Number(form.lng) || 0, Number(form.lat) || 0],
         },
-        images
-      );
+        images: form.imageUrl ? [{ url: form.imageUrl }] : [],
+      });
       setForm(emptyForm);
-      previews.forEach((url) => URL.revokeObjectURL(url));
-      setImages([]);
-      setPreviews([]);
       await loadRestaurants();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create restaurant");
@@ -108,6 +90,7 @@ export default function AdminRestaurantsPage() {
         className="mb-10 grid max-w-lg gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
       >
         <h3 className="text-base font-semibold text-slate-800">Add Restaurant</h3>
+
         <input
           type="text"
           placeholder="Name"
@@ -116,6 +99,7 @@ export default function AdminRestaurantsPage() {
           required
           className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
+
         <input
           type="text"
           placeholder="Address"
@@ -124,6 +108,7 @@ export default function AdminRestaurantsPage() {
           required
           className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
         />
+
         <div className="flex gap-3">
           <input
             type="number"
@@ -142,6 +127,7 @@ export default function AdminRestaurantsPage() {
             className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
           />
         </div>
+
         <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
@@ -150,41 +136,45 @@ export default function AdminRestaurantsPage() {
           />
           Vegetarian only
         </label>
-         <label className="flex items-center gap-2 text-sm text-slate-700">
+
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={form.isNonVeg}
-            onChange={(e) => setForm({ ...form, isVeg: e.target.checked })}
+            onChange={(e) => setForm({ ...form, isNonVeg: e.target.checked })}
           />
-          NonVegeterian meal
+          Non-vegetarian meal
         </label>
-         <label className="flex items-center gap-2 text-sm text-slate-700">
+
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={form.isBoth}
-            onChange={(e) => setForm({ ...form, isVeg: e.target.checked })}
+            onChange={(e) => setForm({ ...form, isBoth: e.target.checked })}
           />
           Both
-                  </label>
+        </label>
 
         <div>
-                 <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">
             Restaurant image URL
           </label>
           <input
             type="url"
             placeholder="https://example.com/image.jpg"
-            onChange={handleImagesChange}
+            value={form.imageUrl}
+            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
             className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
           />
-        </div>
-          {previews.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {previews.map((src, i) => (
-              
-                <Image key={i} src={src} alt="" className="h-16 w-16 rounded-lg object-cover" />
-              ))}
+
+          {form.imageUrl && (
+            <div className="mt-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={form.imageUrl}
+                alt=""
+                className="h-16 w-16 rounded-lg object-cover"
+              />
             </div>
           )}
         </div>
@@ -226,7 +216,9 @@ export default function AdminRestaurantsPage() {
                 <div className="flex flex-1 flex-col gap-1">
                   <h3 className="font-semibold text-slate-900">{r.name}</h3>
                   <p className="line-clamp-1 text-sm text-slate-500">{r.address}</p>
-                  <p className="text-m text-slate-400">{r.isVeg ? "Vegetarian" : "All diets"}</p>
+                  <p className="text-m text-slate-400">
+                    {r.isVeg ? "Vegetarian" : r.isNonVeg ? "Non-vegetarian" : "All diets"}
+                  </p>
                   <div className="mt-auto flex gap-3 pt-2">
                     <Link
                       href={`/admin/restaurants/${r._id}`}

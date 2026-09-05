@@ -9,7 +9,7 @@ const nextConfig = {
       },
     ];
   },
-  
+
   images: {
     remotePatterns: [
       { hostname: "localhost" },
@@ -18,6 +18,11 @@ const nextConfig = {
       { hostname: "b.zmtcdn.com" },
       { hostname: "media.istockphoto.com" },
       { hostname: "media-assets.swiggy.com" },
+      { hostname: "angansweets.com" },
+      { hostname: "media.trisaranepal.com" },
+      { hostname: "garden.laviehospitality.com.np" },
+      { hostname: "jasperrestaurant.com" },
+      { hostname: "shorturl.at" },
     ],
   },
 };
