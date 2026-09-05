@@ -23,7 +23,7 @@ export default function Navbar() {
           QuickBites
         </Link>
 
-        <nav className="flex items-center gap-12 text-3xl font-medium">
+        <nav className="flex items-center gap-8 text-3xl font-medium">
           <Link
             href="/"
             className="flex items-center gap-2 px-4 py-2 border-2 border-transparent rounded-full hover:text-amber-700 hover:bg-amber-900/5 hover:border-amber-900/20 transition-all duration-300"
@@ -65,22 +65,27 @@ export default function Navbar() {
             )}
           </Link>
           
-          {loading ? null : user ? (
-            <div className="flex items-center gap-4">
-              {user.role === "admin" && (
-                <Link href="/admin" className="hover:text-amber-700">
-                  Admin
-                </Link>
-              )}
-              <span className="text-amber-700">{user.name}</span>
-              <button
-                onClick={logout}
-                className="flex items-center gap-1 hover:text-amber-700 cursor-pointer"
-              >
-                <FiLogOut />
-                Logout
-              </button>
-            </div>
+         {loading ? null : user ? (
+  <div className="flex items-center gap-4">
+    {user.role === "admin" && (
+      <Link
+        href="/admin"
+        className="flex items-center gap-2 px-4 py-2 border-2 border-transparent rounded-full hover:text-amber-700 hover:bg-amber-900/5 hover:border-amber-900/20 transition-all duration-300"
+      >
+        Admin
+      </Link>
+    )}
+    {user.role !== "admin" && (
+      <span className="text-amber-700">{user.name}</span>
+    )}
+    <button
+      onClick={logout}
+      className="flex items-center gap-1 hover:text-amber-700 cursor-pointer"
+    >
+      <FiLogOut />
+      Logout
+    </button>
+  </div>
           ) : (
             <Link href="/login" className="flex items-center gap-2 px-4 py-2 border-2 border-20% rounded-full hover:text-amber-700 hover:bg-amber-900/5 ">
               <FiKey />

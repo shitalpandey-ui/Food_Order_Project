@@ -43,8 +43,8 @@ export default function Home() {
   }, []);
 
   const filteredRestaurants = restaurants.filter((res) =>
-    res.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  (res.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+);
 
   const handleSearch = () => {
     // searchQuery already drives filteredRestaurants live,
@@ -115,7 +115,8 @@ export default function Home() {
                   <img
                   src={cat.icon} 
                   alt={cat.name} 
-                  className="w-30 h-30 rounded-full object-cover" />
+                  className="w-30 h-30 rounded-full object-cover" 
+                  />
                 </div>
                 <span className="text-xl font-semibold text-gray-800">
                   {cat.name}
